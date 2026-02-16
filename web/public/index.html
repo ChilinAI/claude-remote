@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Remote — Access Claude Code from Any Device</title>
+  <meta name="description" content="Control Claude Code on your Mac from iPhone, Android, or any browser. Send coding tasks remotely, get real-time responses. Free macOS tray app with Firebase-powered web chat.">
+  <meta name="keywords" content="remote Claude Code, Claude Code remote access, use Claude Code from phone, control Mac terminal remotely, run CLI from mobile, remote AI coding assistant, Claude Code mobile interface, Claude Code web chat, remote pair programming with AI, Tauri Claude Code app, Firebase Claude Code bridge, Claude Code macOS tray app">
+  <link rel="alternate" hreflang="ru" href="/ru/">
+  <link rel="alternate" hreflang="en" href="/">
+  <link rel="canonical" href="https://chilin1.web.app/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Claude Remote — Access Claude Code from Any Device">
+  <meta property="og:description" content="Control Claude Code on your Mac from iPhone, Android, or any browser. Send coding tasks remotely, get real-time responses.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://chilin1.web.app/">
+  <meta property="og:image" content="https://chilin1.web.app/assets/hero.jpg">
+
+  <script>
+    // Redirect Russian-speaking users to /ru/ (only on first visit)
+    (function() {
+      if (localStorage.getItem('lang_chosen')) return;
+      var lang = navigator.language || navigator.userLanguage || '';
+      if (lang.startsWith('ru')) {
+        localStorage.setItem('lang_chosen', 'ru');
+        window.location.replace('/ru/');
+      } else {
+        localStorage.setItem('lang_chosen', 'en');
+      }
+    })();
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #2d2d2d;
+      --surface: #333333;
+      --text: #f0f0f0;
+      --text-dim: #999;
+      --accent: #3ecf8e;
+      --accent-hover: #4ee0a0;
+      --radius: 12px;
+      --shadow-dark: #252525;
+      --shadow-light: #3a3a3a;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #e0e0e0;
+        --surface: #e8e8e8;
+        --text: #1a1a1a;
+        --text-dim: #666;
+        --accent: #2ea86e;
+        --accent-hover: #3ecf8e;
+        --shadow-dark: #c8c8c8;
+        --shadow-light: #f5f5f5;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Neumorphic base */
+    .neu {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow:
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    }
+    .neu-inset {
+      background: var(--bg);
+      border-radius: 8px;
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+
+    /* === NAV === */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 14px 24px;
+      background: var(--bg);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 16px; align-items: center; }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .lang-switch {
+      color: var(--text-dim) !important;
+      font-size: 13px !important;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow:
+        2px 2px 4px var(--shadow-dark),
+        -2px -2px 4px var(--shadow-light);
+      transition: all 0.15s;
+    }
+    .lang-switch:hover { color: var(--text) !important; }
+    .lang-switch:active {
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+    .nav-cta {
+      color: var(--accent) !important;
+      font-weight: 600;
+      font-size: 14px !important;
+      padding: 8px 20px;
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow:
+        3px 3px 6px var(--shadow-dark),
+        -3px -3px 6px var(--shadow-light);
+      transition: all 0.15s;
+    }
+    .nav-cta:hover { color: var(--accent-hover) !important; }
+    .nav-cta:active {
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+
+    /* === HERO === */
+    .hero {
+      padding: 120px 24px 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-text h1 {
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .hero-text h1 span { color: var(--accent); }
+    .hero-text p {
+      font-size: 17px;
+      color: var(--text-dim);
+      margin-bottom: 36px;
+      max-width: 460px;
+    }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      color: var(--accent);
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.15s;
+      box-shadow:
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+    }
+    .btn-primary:hover { color: var(--accent-hover); }
+    .btn-primary:active {
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      background: var(--bg);
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+      transition: color 0.2s;
+    }
+    .btn-secondary:hover { color: var(--text); }
+
+    .hero-image {
+      position: relative;
+    }
+    .hero-image img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow:
+        8px 8px 16px var(--shadow-dark),
+        -8px -8px 16px var(--shadow-light);
+    }
+
+    /* === SECTIONS === */
+    .section {
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 34px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 17px;
+      margin-bottom: 56px;
+    }
+
+    /* === STEPS === */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .step {
+      background: var(--surface);
+      padding: 32px 28px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow:
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    }
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--bg);
+      color: var(--accent);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+    .step h3 {
+      font-size: 19px;
+      margin-bottom: 12px;
+    }
+    .step p {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* === FEATURES === */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .feature {
+      background: var(--surface);
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow:
+        6px 6px 12px var(--shadow-dark),
+        -6px -6px 12px var(--shadow-light);
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+    .feature h3 {
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+    .feature p {
+      color: var(--text-dim);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* === CTA === */
+    .cta-section {
+      text-align: center;
+      padding: 60px 24px 100px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .cta-section h2 {
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .cta-section p {
+      color: var(--text-dim);
+      font-size: 17px;
+      margin-bottom: 36px;
+    }
+
+    /* === FOOTER === */
+    footer {
+      padding: 24px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    /* === MOBILE === */
+    @media (max-width: 768px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 100px 20px 60px;
+        gap: 40px;
+        text-align: center;
+      }
+      .hero-text h1 { font-size: 30px; }
+      .hero-text p { margin: 0 auto 32px; font-size: 15px; }
+      .hero-buttons { justify-content: center; }
+      .hero-image { order: -1; }
+
+      .steps { grid-template-columns: 1fr; }
+      .features { grid-template-columns: 1fr; }
+      .section-title { font-size: 26px; }
+
+      .nav-links a:not(.nav-cta):not(.lang-switch) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Claude <span>Remote</span></div>
+    <div class="nav-links">
+      <a href="#how">How it Works</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="/ru/" class="lang-switch" onclick="localStorage.setItem('lang_chosen','ru')">RU</a>
+      <a href="chat.html" class="nav-cta">Open Chat</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Access <span>Claude Code</span> from Any Device</h1>
+      <p>Send coding tasks to your Mac from anywhere. Claude Code runs on your computer — you control it from your phone or any browser.</p>
+      <div class="hero-buttons">
+        <a href="releases/Claude Remote_0.1.0_aarch64.dmg" class="btn-primary">
+          &#xF8FF; Download for Mac
+        </a>
+        <a href="chat.html" class="btn-secondary">
+          Open Web Chat &rarr;
+        </a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="assets/hero.jpg" alt="Claude Remote — control Claude Code from your phone" width="540" height="380">
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Three simple steps to control your Mac remotely</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Install the App</h3>
+        <p>Download Claude Remote on your Mac. The app lives in the menu bar and connects to your account.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Open the Chat</h3>
+        <p>Visit the web chat from your phone or any browser. Sign in and start typing your tasks.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Claude Executes</h3>
+        <p>Your message instantly reaches your Mac. Claude Code runs the task and streams back the result in real time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <h2 class="section-title">Features</h2>
+    <p class="section-subtitle">Everything you need for remote AI-powered coding</p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">&#128241;</div>
+        <h3>Mobile Access</h3>
+        <p>Full chat with Claude Code right from your iPhone or Android. Responsive design, comfortable on any screen.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#9889;</div>
+        <h3>Instant Delivery</h3>
+        <p>Firebase Realtime Database — messages are delivered instantly. Response streaming in real time.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128274;</div>
+        <h3>Secure by Design</h3>
+        <p>Firebase Auth, encrypted tokens stored in macOS Keychain. Only you can access your sessions.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">&#128187;</div>
+        <h3>Lightweight Tray App</h3>
+        <p>Minimal footprint — just an icon in your menu bar. Auto-start, auto-update, live status indicator.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Get Started Now</h2>
+    <p>Download the app on your Mac and control Claude Code from anywhere.</p>
+    <div class="hero-buttons" style="justify-content: center;">
+      <a href="releases/Claude Remote_0.1.0_aarch64.dmg" class="btn-primary">
+        &#xF8FF; Download for Mac
+      </a>
+    </div>
+  </section>
+
+  <!-- INSTALLATION -->
+  <section class="section" id="install">
+    <h2 class="section-title">Installation</h2>
+    <p class="section-subtitle">macOS may show a warning for apps downloaded outside the App Store</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Open the DMG</h3>
+        <p>Double-click the downloaded .dmg file and drag Claude Remote to your Applications folder.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Allow in Settings</h3>
+        <p>Try to open the app — macOS will block it. Go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down and click <strong>Open Anyway</strong>. Enter your password.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Done!</h3>
+        <p>After that, the app opens normally every time. macOS remembers your choice — no extra steps needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Claude Remote &copy; 2026
+  </footer>
+
+</body>
+</html>

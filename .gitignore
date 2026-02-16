@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Rust build
+app/src-tauri/target/
+
+# Release binaries
+web/public/releases/*.dmg
+web/public/releases/*.pkg
+web/public/releases/*.tar.gz
+web/public/releases/*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.sw?
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Signing keys (never commit)
+*.key
+*.p12
+*.pem
+
+# Logs
+*.log

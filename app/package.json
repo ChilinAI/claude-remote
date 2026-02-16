@@ -1,0 +1,14 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "prebuild": "rm -rf src-tauri/target/release/bundle/macos src-tauri/target/release/bundle/dmg || true",
+    "build": "tauri build && cd .. && bash build-pkg.sh"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

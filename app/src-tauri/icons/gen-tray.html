@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="c" width="32" height="32"></canvas>
+<canvas id="c2" width="128" height="128"></canvas>
+<script>
+// 32x32 tray icon
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+ctx.clearRect(0, 0, 32, 32);
+ctx.fillStyle = '#000000';
+ctx.font = 'bold 8px -apple-system, Arial';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText('Claude', 16, 16);
+
+// 128x128 app icon
+const c2 = document.getElementById('c2');
+const ctx2 = c2.getContext('2d');
+// Background
+ctx2.fillStyle = '#e94560';
+ctx2.beginPath();
+ctx2.roundRect(0, 0, 128, 128, 24);
+ctx2.fill();
+// Text
+ctx2.fillStyle = '#ffffff';
+ctx2.font = 'bold 28px -apple-system, Arial';
+ctx2.textAlign = 'center';
+ctx2.textBaseline = 'middle';
+ctx2.fillText('Claude', 64, 64);
+</script>
+</body>
+</html>
