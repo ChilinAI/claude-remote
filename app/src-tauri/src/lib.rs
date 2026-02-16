@@ -648,31 +648,30 @@ async fn quit_app(app: tauri::AppHandle) -> Result<(), String> {
 // === Check for Updates ===
 
 #[tauri::command]
-async fn check_for_updates(app: tauri::AppHandle) -> Result<Option<String>, String> {
+async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
     use tauri_plugin_updater::UpdaterExt;
     let update = app
         .updater()
-        .map_err(|e| e.to_string())?
+        .map_err(|e| format!("Updater init error: {}", e))?
         .check()
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("Update check error: {}", e))?;
 
     match update {
         Some(u) => {
             let version = u.version.clone();
             println!("[updater] Update available: v{}", version);
-            let app_handle = app.clone();
-            tauri::async_runtime::spawn(async move {
-                if let Err(e) = u.download_and_install(|_, _| {}, || {}).await {
-                    println!("[updater] Install error: {}", e);
-                } else {
-                    println!("[updater] Update installed, restarting...");
-                    app_handle.restart();
-                }
-            });
-            Ok(Some(version))
+
+            // Download and install synchronously (not in background)
+            u.download_and_install(|_, _| {}, || {})
+                .await
+                .map_err(|e| format!("Install error: {}", e))?;
+
+            println!("[updater] Update installed, restarting...");
+            app.restart();
+            Ok(version)
         }
-        None => Ok(None),
+        None => Ok("latest".to_string()),
     }
 }
 

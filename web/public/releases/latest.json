@@ -1,10 +1,10 @@
 {
-  "version": "0.2.3",
-  "notes": "Fix version display, auto-restart after update",
+  "version": "0.2.5",
+  "notes": "Fix log scroll, show updater errors in log",
   "pub_date": "2026-02-16T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldRb0ZnSmMyUlRUNXJIaWt5eUpXckRZREpkR3NiMEVmalpvY0oyaGRVbGxQNDJQTVl6Wk4zcUhrYTY2UGtHQW0vR1ZjMFUvcmRrWDRyTGZSYVYvaUFjRVhaZHk5dHdRSXc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMjYwNTEwCWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6Cmkwb0RoUzZNeW5jQ1VGZk5rOHh0TlVveXhuYjRhMW56SlREOTMwdW1ZWUZ2Z0pjS0Y2eFovZXVVUUFnaTRkWkxDa1RBTE5FT3JqN2JyU1U3bnd2cUR3PT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNXFCVTNsUlRVaG1xNnpHdnJXTWpvVGw2cHBOOHVOUVpFSjZIR3pXUUJkZDE5eGJ6dE0rUzdpRXg5eW8zaHFLTG41eTZCbVVNOWZEOFhNYXd6Z3FEV0FjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMjc2MzY1CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClRrRmU1L0w3S3pQaVhZZElib09Lc05HWmRvSk90MmJjQ1Nrcm45bnRvZlpmNzVhVUNCWmdHOGJlekRKWWwwTjRwT3M3a1EvVTR3RUpDV2V4MXZMakJ3PT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }
