@@ -9,7 +9,7 @@ Send coding tasks remotely — get AI-powered responses streamed back in real ti
 ## How It Works
 
 1. **Install the app** on your Mac — it lives in the menu bar
-2. **Open the web chat** from your phone or any browser
+2. **Open the [web chat](https://clauderemote.web.app/chat.html)** from your phone or any browser
 3. **Send a message** — it reaches your Mac instantly, Claude Code runs the task and streams back the result
 
 ## Desktop App
@@ -20,7 +20,7 @@ Lightweight Tauri tray app with neumorphic UI, auto-detect Claude Code path, and
 
 ## Features
 
-- **Mobile access** — full chat with Claude Code from iPhone, Android, or any browser
+- **Mobile access** — full chat with Claude Code from iPhone, Android, or [any browser](https://clauderemote.web.app/chat.html)
 - **Instant delivery** — Firebase Realtime Database, messages delivered in milliseconds
 - **Secure** — Firebase Auth, each user can only access their own sessions
 - **Lightweight** — just an icon in your menu bar, minimal resource usage
@@ -85,8 +85,9 @@ The built `.app` and `.dmg` will be in `app/src-tauri/target/release/bundle/`.
 
 ## Links
 
-- **Web chat:** https://clauderemote.web.app/chat.html
-- **Landing page:** https://clauderemote.web.app
+- **Website:** [clauderemote.web.app](https://clauderemote.web.app)
+- **Web chat:** [clauderemote.web.app/chat.html](https://clauderemote.web.app/chat.html)
+- **Download:** [Claude Remote for macOS](https://clauderemote.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)
 
 ## License
 
