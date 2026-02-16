@@ -389,7 +389,7 @@
       <h1>Access <span>Claude Code</span> from Any Device</h1>
       <p>Send coding tasks to your Mac from anywhere. Claude Code runs on your computer — you control it from your phone or any browser.</p>
       <div class="hero-buttons">
-        <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary">
+        <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
           &#xF8FF; Download for Mac
         </a>
         <a href="chat.html" class="btn-secondary">
@@ -458,7 +458,7 @@
     <h2>Get Started Now</h2>
     <p>Download the app on your Mac and control Claude Code from anywhere.</p>
     <div class="hero-buttons" style="justify-content: center;">
-      <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary">
+      <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
         &#xF8FF; Download for Mac
       </a>
     </div>
@@ -491,5 +491,13 @@
     Claude Remote &copy; 2026
   </footer>
 
+  <script>
+    fetch('/releases/latest.json').then(r=>r.json()).then(d=>{
+      const v=d.version;
+      document.querySelectorAll('.download-link').forEach(a=>{
+        a.href=`releases/Claude Remote_${v}_aarch64.dmg`;
+      });
+    }).catch(()=>{});
+  </script>
 </body>
 </html>
