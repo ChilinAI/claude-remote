@@ -490,7 +490,16 @@ async fn poll_messages(state: Arc<AppState>) {
                     .and_then(|s| s.as_str())
                     .unwrap_or("");
 
-                if status != "pending" || role != "user" {
+                if role != "user" {
+                    continue;
+                }
+
+                // Accept "pending" messages, and also "processing" messages
+                // that got stuck (e.g. token expired during Claude execution)
+                let is_busy = *state.busy.lock().await;
+                if status == "processing" && !is_busy {
+                    println!("[daemon] Retrying stuck message: {}", msg_id);
+                } else if status != "pending" {
                     continue;
                 }
 
@@ -527,10 +536,50 @@ async fn poll_messages(state: Arc<AppState>) {
                     Err(err) => (err, "error"),
                 };
 
+                // Refresh token before writing response (Claude may have run for a long time)
+                let fresh_token = match state.auth_token.lock().await.clone() {
+                    Some(t) => {
+                        // Try a test read to check if token is still valid
+                        let test_url = format!(
+                            "{}/sessions/{}/_heartbeat.json?auth={}",
+                            config.firebase_db_url, uid, t
+                        );
+                        let test = client.get(&test_url).send().await;
+                        if let Ok(r) = test {
+                            if r.status().as_u16() == 401 {
+                                // Token expired, refresh it
+                                if let Some(ref_tok) = state.refresh_token.lock().await.clone() {
+                                    if let Ok(refreshed) = refresh_auth_token(&config.firebase_api_key, &ref_tok).await {
+                                        *state.auth_token.lock().await = Some(refreshed.id_token.clone());
+                                        *state.refresh_token.lock().await = Some(refreshed.refresh_token.clone());
+                                        if let Some(email) = state.email.lock().await.clone() {
+                                            save_session_to_disk(&SavedSession {
+                                                email,
+                                                uid: refreshed.user_id,
+                                                refresh_token: refreshed.refresh_token,
+                                            });
+                                        }
+                                        println!("[daemon] Token refreshed before writing response");
+                                        refreshed.id_token
+                                    } else {
+                                        println!("[daemon] Failed to refresh token");
+                                        t
+                                    }
+                                } else { t }
+                            } else { t }
+                        } else { t }
+                    }
+                    None => {
+                        println!("[daemon] No token available for response");
+                        *state.busy.lock().await = false;
+                        continue;
+                    }
+                };
+
                 // Write response message
                 let resp_url = format!(
                     "{}/sessions/{}/{}/messages.json?auth={}",
-                    config.firebase_db_url, uid, session_id, token
+                    config.firebase_db_url, uid, session_id, fresh_token
                 );
                 let _ = client
                     .post(&resp_url)
@@ -544,8 +593,12 @@ async fn poll_messages(state: Arc<AppState>) {
                     .await;
 
                 // Mark user message as done
+                let update_url_fresh = format!(
+                    "{}/sessions/{}/{}/messages/{}/status.json?auth={}",
+                    config.firebase_db_url, uid, session_id, msg_id, fresh_token
+                );
                 let _ = client
-                    .put(&update_url)
+                    .put(&update_url_fresh)
                     .json(&serde_json::json!("done"))
                     .send()
                     .await;
@@ -608,18 +661,24 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<Option<String>, Stri
         Some(u) => {
             let version = u.version.clone();
             println!("[updater] Update available: v{}", version);
-            // Download and install in background
+            let app_handle = app.clone();
             tauri::async_runtime::spawn(async move {
                 if let Err(e) = u.download_and_install(|_, _| {}, || {}).await {
                     println!("[updater] Install error: {}", e);
                 } else {
-                    println!("[updater] Update installed, restart to apply");
+                    println!("[updater] Update installed, restarting...");
+                    app_handle.restart();
                 }
             });
             Ok(Some(version))
         }
         None => Ok(None),
     }
+}
+
+#[tauri::command]
+async fn get_version(app: tauri::AppHandle) -> Result<String, String> {
+    Ok(app.package_info().version.to_string())
 }
 
 // === Detect Claude Code ===
@@ -805,6 +864,7 @@ pub fn run() {
             detect_claude,
             check_for_updates,
             quit_app,
+            get_version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

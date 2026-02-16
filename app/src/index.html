@@ -296,7 +296,10 @@
 
   <!-- Log -->
   <div class="section neu" style="flex:1; display:flex; flex-direction:column;">
-    <h2>Log</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>Log</h2>
+      <span id="versionLabel" style="font-size:9px; color:var(--text-dim); opacity:0.4; font-family:'SF Mono',Menlo,monospace;"></span>
+    </div>
     <div class="log" id="logContainer">
       <div class="log-entry">Ready.</div>
     </div>
@@ -426,6 +429,14 @@
     }
 
     async function init() {
+      // Show version first
+      try {
+        const ver = await invoke('get_version');
+        document.getElementById('versionLabel').textContent = `v${ver}`;
+      } catch (e) {
+        document.getElementById('versionLabel').textContent = 'v?';
+      }
+
       try {
         const config = await invoke('get_config');
         if (config.claude_path) document.getElementById('claudePath').value = config.claude_path;

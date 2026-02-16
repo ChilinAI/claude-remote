@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Claude Remote",
-  "version": "0.1.0",
+  "version": "0.2.3",
   "identifier": "com.clauderemote.desktop",
   "build": {
     "frontendDist": "../src"
@@ -24,7 +24,7 @@
   "bundle": {
     "active": true,
     "targets": ["app", "dmg"],
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -38,7 +38,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRBNzIyODM4Qzg1NURCNkMKUldSczIxWElPQ2h5U3JEZ1NNaVFMUytPS0c3eHZueElqOWVQc1NETWNtVWhPK0tqUHRXTGovTjAK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU2RDMxNEQ5NUMwMjE2MjgKUldRb0ZnSmMyUlRUNXJKck8yMlJPcmdFTnFrOG9nTFROV3BVczFxZUphMmY5NlVxTTdIVWpRTE0K",
       "endpoints": [
         "https://clauderemote.web.app/releases/latest.json"
       ]

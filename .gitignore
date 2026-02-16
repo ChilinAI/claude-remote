@@ -23,10 +23,11 @@ Thumbs.db
 .firebase/
 firebase-debug.log
 
-# Signing keys (never commit)
+# Signing keys and passwords (never commit)
 *.key
 *.p12
 *.pem
+SIGNING_PASSWORD.txt
 
 # Logs
 *.log

@@ -1,10 +1,10 @@
 {
-  "version": "0.1.0",
-  "notes": "Initial release with session persistence and auto token refresh",
-  "pub_date": "2026-02-14T00:00:00Z",
+  "version": "0.2.3",
+  "notes": "Fix version display, auto-restart after update",
+  "pub_date": "2026-02-16T00:00:00Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSczIxWElPQ2h5U21McVpreGtNaXErcWkvTjE1ZnBhTFNVMWROemQwVkpIYWwzMVpKQmhEN25FeDJrcGI2TWdyQXByMWk2MnlObkhMSmh6QWRGcUZTOGptNGRnL1hNMlE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMTQwNjk4CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6Cm9CdU1pRXhTMjh1dFZqZjhZOGtWMHZQbGZabXBtQ1dVN0RCS2MxM09YdU9tS3E3bXdNYTRoREVEZ1p6clZBaTd5amlvUTVhbjJ3N1F5aFI0UWFUWkF3PT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUldRb0ZnSmMyUlRUNXJIaWt5eUpXckRZREpkR3NiMEVmalpvY0oyaGRVbGxQNDJQTVl6Wk4zcUhrYTY2UGtHQW0vR1ZjMFUvcmRrWDRyTGZSYVYvaUFjRVhaZHk5dHdRSXc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMjYwNTEwCWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6Cmkwb0RoUzZNeW5jQ1VGZk5rOHh0TlVveXhuYjRhMW56SlREOTMwdW1ZWUZ2Z0pjS0Y2eFovZXVVUUFnaTRkWkxDa1RBTE5FT3JqN2JyU1U3bnd2cUR3PT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }
