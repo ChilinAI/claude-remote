@@ -86,8 +86,8 @@ The built `.app` and `.dmg` will be in `app/src-tauri/target/release/bundle/`.
 ## Links
 
 - **Download:** [Claude Remote for macOS](https://clauderemote.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)
-- **Web chat:** [clauderemote.web.app/chat.html](https://clauderemote.web.app/chat.html)
 - **Website:** [clauderemote.web.app](https://clauderemote.web.app)
+- **Web chat:** [clauderemote.web.app/chat.html](https://clauderemote.web.app/chat.html)
 
 ## License
 
