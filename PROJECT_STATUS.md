@@ -46,7 +46,7 @@
 
 ### 3. Веб-чат (chilin1) — РАБОТАЕТ ✅
 - Путь: `/Users/aleksandr/claude-remote/web/`
-- Задеплоен: **https://chilin1.web.app**
+- Задеплоен: **https://clauderemote.web.app**
 - Firebase RTDB (не Firestore как в прототипе)
 - Markdown рендеринг (marked.js + highlight.js)
 - Структура RTDB: `/sessions/{uid}/{sessionId}/messages/{msgId}`
@@ -56,7 +56,7 @@
 - Отдельный Google аккаунт (chilin1), не смешан с mail-firestore
 - RTDB: `https://chilin1-default-rtdb.europe-west1.firebasedatabase.app`
 - Auth: Email/Password включён
-- Hosting: https://chilin1.web.app
+- Hosting: https://clauderemote.web.app
 - Firebase CLI авторизован локально: `PATH="$HOME/.local/node/bin:$PATH" firebase`
 - Деплой: `PATH="$HOME/.local/node/bin:/usr/bin:/bin:$PATH" firebase deploy --only hosting --project chilin1 --config /Users/aleksandr/claude-remote/web/firebase.json`
 
@@ -138,8 +138,8 @@ alias claude2="CLAUDE_CONFIG_DIR=~/.claude-account2 claude"
 8. ~~Auto-update~~ ✅
    - Tauri updater plugin с подписью (minisign)
    - Ключи: `~/.tauri/claude-remote.key` (не публикуется)
-   - Update manifest: `https://chilin1.web.app/releases/latest.json`
-   - Артефакты: `https://chilin1.web.app/releases/Claude Remote.app.tar.gz`
+   - Update manifest: `https://clauderemote.web.app/releases/latest.json`
+   - Артефакты: `https://clauderemote.web.app/releases/Claude Remote.app.tar.gz`
    - Сборка: `TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/claude-remote.key)" TAURI_SIGNING_PRIVATE_KEY_PASSWORD="<password>" npm run tauri build`
    - Rust: `check_for_updates` command с автоустановкой
 9. Веб-чат: улучшения (history сессий, удаление, streaming)

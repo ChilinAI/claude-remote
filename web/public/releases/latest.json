@@ -5,7 +5,7 @@
   "platforms": {
     "darwin-aarch64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSczIxWElPQ2h5U21McVpreGtNaXErcWkvTjE1ZnBhTFNVMWROemQwVkpIYWwzMVpKQmhEN25FeDJrcGI2TWdyQXByMWk2MnlObkhMSmh6QWRGcUZTOGptNGRnL1hNMlE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMTQwNjk4CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6Cm9CdU1pRXhTMjh1dFZqZjhZOGtWMHZQbGZabXBtQ1dVN0RCS2MxM09YdU9tS3E3bXdNYTRoREVEZ1p6clZBaTd5amlvUTVhbjJ3N1F5aFI0UWFUWkF3PT0K",
-      "url": "https://chilin1.web.app/releases/Claude Remote.app.tar.gz"
+      "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }
 }

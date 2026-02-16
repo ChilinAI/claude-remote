@@ -40,7 +40,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRBNzIyODM4Qzg1NURCNkMKUldSczIxWElPQ2h5U3JEZ1NNaVFMUytPS0c3eHZueElqOWVQc1NETWNtVWhPK0tqUHRXTGovTjAK",
       "endpoints": [
-        "https://chilin1.web.app/releases/latest.json"
+        "https://clauderemote.web.app/releases/latest.json"
       ]
     }
   }

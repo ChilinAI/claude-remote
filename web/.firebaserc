@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "chilin1"
-  }
+  },
+  "targets": {
+    "chilin1": {
+      "hosting": {
+        "clauderemote": [
+          "clauderemote"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

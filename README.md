@@ -28,7 +28,7 @@ Lightweight Tauri tray app with neumorphic UI, auto-detect Claude Code path, and
 
 ## Download
 
-**[Download Claude Remote for macOS (Apple Silicon)](https://chilin1.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)**
+**[Download Claude Remote for macOS (Apple Silicon)](https://clauderemote.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)**
 
 ### Installation
 
@@ -85,8 +85,8 @@ The built `.app` and `.dmg` will be in `app/src-tauri/target/release/bundle/`.
 
 ## Links
 
-- **Web chat:** https://chilin1.web.app/chat.html
-- **Landing page:** https://chilin1.web.app
+- **Web chat:** https://clauderemote.web.app/chat.html
+- **Landing page:** https://clauderemote.web.app
 
 ## License
 
