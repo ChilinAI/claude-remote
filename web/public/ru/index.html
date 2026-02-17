@@ -7,20 +7,28 @@
   <meta name="description" content="Отправляй команды Claude Code с iPhone или любого браузера. Твой Mac работает — ты управляешь удалённо. Бесплатное macOS-приложение.">
   <link rel="alternate" hreflang="en" href="/">
   <link rel="alternate" hreflang="ru" href="/ru/">
+  <link rel="alternate" hreflang="es" href="/es/">
   <link rel="canonical" href="https://clauderemote.web.app/ru/">
 
   <script>
-    // If user explicitly chose English, redirect back to /
+    // If user explicitly chose another language, redirect
     (function() {
       var chosen = localStorage.getItem('lang_chosen');
       if (chosen === 'en') {
         window.location.replace('/');
         return;
       }
+      if (chosen === 'es') {
+        window.location.replace('/es/');
+        return;
+      }
       if (!chosen) {
-        // First visit — auto-detect: if not Russian, redirect to English
+        // First visit — auto-detect: if not Russian, redirect
         var lang = navigator.language || navigator.userLanguage || '';
-        if (!lang.startsWith('ru')) {
+        if (lang.startsWith('es')) {
+          localStorage.setItem('lang_chosen', 'es');
+          window.location.replace('/es/');
+        } else if (!lang.startsWith('ru')) {
           localStorage.setItem('lang_chosen', 'en');
           window.location.replace('/');
         } else {
@@ -378,6 +386,7 @@
       <a href="#features">Возможности</a>
       <a href="#install">Установка</a>
       <a href="/" class="lang-switch" onclick="localStorage.setItem('lang_chosen','en')">EN</a>
+      <a href="/es/" class="lang-switch" onclick="localStorage.setItem('lang_chosen','es')">ES</a>
       <a href="/chat.html" class="nav-cta">Открыть чат</a>
     </div>
   </nav>
