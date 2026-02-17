@@ -1,10 +1,10 @@
 {
-  "version": "0.3.0",
-  "notes": "E2E encryption (ECDH P-256 + AES-256-GCM)",
-  "pub_date": "2026-02-17T09:01:35Z",
+  "version": "0.3.1",
+  "notes": "Fix E2E key re-exchange on page refresh",
+  "pub_date": "2026-02-17T09:26:03Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNWgyek1hRnlXV3M1ZUU2eCtzK05wcEZUK291YkhQbUxRUHhSekhnZnB6UFFqTFJHTjIwUEFzRUErVmtNdEVMVzRqdVpRTGdmUVFLUDFHckxHV0M2YVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMzE4ODg3CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6CjI3Wjd0blVtTEtNN3JwVFNMeEdYa0hQRVFIQ09FWXJRbzJrcXIrbTFXY0tjYkJCUitZMXdXMUx0TTh4U2FlQVp5VVU3UjNLT3lnTHdFRFBTUHltdUNBPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNWs5ODBkK0dFanN2RkV2Q2J3UmVWbTVMRlJWc1RQQm1hOWNweTFYNytDaEFMVXQ5RFVzVFduSzczNEVUOGxWUzNFWnZVZGFZWlhjbnlEdFY4SDRXTkF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMzIwMzU0CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClBadkxJalkvT1dySkxhWEhvZHdQcTVncEJkV0cvYVF1NFgrQ2twTEE5azlJbEU4KzFZa1I0ait6bTcrRnBMR3FPbnl6Y0xBVFBlOVJxaDhsQ0hhMUNRPT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }

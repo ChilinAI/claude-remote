@@ -188,9 +188,11 @@
       .header-actions.open { display: flex; }
       .header-actions-overlay.open { display: block; z-index: 9; }
       .header-actions .btn,
-      .header-actions select { width: 100%; text-align: center; font-size: 16px; padding: 10px 20px; }
-      .header-actions .lang-switcher { width: 100%; }
-      .header-actions .lang-switcher .btn { width: 100%; }
+      .header-actions select { width: 100%; text-align: center; font-size: 16px !important; padding: 10px 20px !important; }
+      .header-actions .lang-switcher,
+      .header-actions .tts-switcher { width: 100%; }
+      .header-actions .lang-switcher .btn,
+      .header-actions .tts-switcher .btn { width: 100%; }
       .header-actions .lang-dropdown { position: static; width: 100%; margin-top: 6px; }
       .header { position: relative; }
     }
@@ -528,7 +530,7 @@
 
   <!-- Login screen -->
   <div id="loginScreen" class="login-screen">
-    <h1>Claude Remote</h1>
+    <a href="/" style="color:inherit;text-decoration:none;"><h1>Claude Remote</h1></a>
     <div class="login-card neu">
       <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
       <input type="password" id="passwordInput" data-i18n-placeholder="password">
@@ -555,10 +557,13 @@
       <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
       <div class="header-actions-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
       <div class="header-actions" id="headerActions">
-        <select id="ttsSelect" class="btn" style="font-size:11px;padding:4px 6px;appearance:none;-webkit-appearance:none;text-align:center;min-width:50px;" onchange="changeTTSProvider(this.value)">
-          <option value="openai">🔊 OpenAI</option>
-          <option value="elevenlabs">🔊 ElevenLabs</option>
-        </select>
+        <div class="tts-switcher" style="position:relative;display:inline-block;">
+          <button class="btn" onclick="toggleTTSMenu(event)" id="ttsBtn" style="font-size:15px;padding:4px 8px;">&#128266;</button>
+          <div class="lang-dropdown" id="ttsDropdown">
+            <a href="#" onclick="pickTTS('openai',event)" id="ttsOptOpenai">OpenAI</a>
+            <a href="#" onclick="pickTTS('elevenlabs',event)" id="ttsOptElevenlabs">ElevenLabs</a>
+          </div>
+        </div>
         <div class="lang-switcher" style="position:relative;display:inline-block;">
           <button class="btn" onclick="toggleLangMenu(event)" id="langGlobe" style="font-size:15px;padding:4px 8px;">&#127760;</button>
           <div class="lang-dropdown" id="langDropdown">
@@ -889,6 +894,7 @@
 
     function toggleLangMenu(e) {
       e.stopPropagation();
+      document.getElementById('ttsDropdown').classList.remove('open');
       document.getElementById('langDropdown').classList.toggle('open');
     }
     function pickLang(lang, e) {
@@ -903,9 +909,31 @@
         if (el) el.className = currentLang === lang ? 'active' : '';
       });
     }
+
+    function toggleTTSMenu(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.remove('open');
+      document.getElementById('ttsDropdown').classList.toggle('open');
+    }
+    function pickTTS(provider, e) {
+      e.preventDefault();
+      changeTTSProvider(provider);
+      document.getElementById('ttsDropdown').classList.remove('open');
+      updateTTSHighlight();
+    }
+    function updateTTSHighlight() {
+      ['openai', 'elevenlabs'].forEach(function(p) {
+        var el = document.getElementById('ttsOpt' + p.charAt(0).toUpperCase() + p.slice(1));
+        if (el) el.className = ttsProvider === p ? 'active' : '';
+      });
+    }
+
     document.addEventListener('click', function(e) {
       if (!e.target.closest('.lang-switcher')) {
         document.getElementById('langDropdown').classList.remove('open');
+      }
+      if (!e.target.closest('.tts-switcher')) {
+        document.getElementById('ttsDropdown').classList.remove('open');
       }
     });
 
@@ -1388,9 +1416,8 @@
     setLang(currentLang);
     updateLangHighlight();
 
-    // Init TTS provider selector
-    const ttsSelect = document.getElementById('ttsSelect');
-    if (ttsSelect) ttsSelect.value = ttsProvider;
+    // Init TTS provider highlight
+    updateTTSHighlight();
   </script>
 </body>
 </html>

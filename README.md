@@ -22,13 +22,44 @@ Lightweight Tauri tray app with neumorphic UI, auto-detect Claude Code path, and
 
 - **Mobile access** — full chat with Claude Code from iPhone, Android, or [any browser](https://clauderemote.web.app)
 - **Instant delivery** — Firebase Realtime Database, messages delivered in milliseconds
-- **Secure** — Firebase Auth, each user can only access their own sessions
+- **&#128274; End-to-end encrypted** — all messages are encrypted in the browser and decrypted only on your Mac (see below)
 - **Lightweight** — just an icon in your menu bar, minimal resource usage
 - **Auto-updates** — built-in updater checks for new versions on launch
 
+## &#128274; End-to-End Encryption
+
+All communication between the web chat and your Mac is end-to-end encrypted. Messages stored in Firebase are ciphertext — **the server never sees your data in plain text**.
+
+### How it works
+
+1. **Key exchange** — when you open a chat session, the browser generates an [ECDH P-256](https://en.wikipedia.org/wiki/Elliptic-curve_Diffie%E2%80%93Hellman) key pair and publishes the public key to Firebase. The desktop app does the same. Both sides compute an identical shared secret without ever transmitting it.
+
+2. **Encryption** — every message you type is encrypted with [AES-256-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) using the shared key and a unique random IV (nonce) before leaving the browser. Only the ciphertext + IV are stored in Firebase.
+
+3. **Decryption** — the desktop app decrypts incoming messages, sends them to Claude Code, encrypts the response, and writes it back. The browser decrypts the response and renders it.
+
+4. **Session isolation** — each chat session has its own key pair. Messages from other sessions or browsers appear blurred and unreadable.
+
+```
+Browser                    Firebase RTDB                  Mac (Tauri)
+  |                             |                            |
+  |-- ECDH public key --------->|                            |
+  |                             |<------ ECDH public key ----|
+  |                             |                            |
+  |  (derive shared AES key)    |    (derive shared AES key) |
+  |                             |                            |
+  |-- AES-GCM(message) ------->|------- ciphertext -------->|
+  |                             |                            |  decrypt -> Claude Code
+  |                             |                            |  encrypt response
+  |<-------- ciphertext --------|<-- AES-GCM(response) -----|
+  |  decrypt & render           |                            |
+```
+
+**What Firebase sees:** only public keys (safe to share) and encrypted blobs. Private keys never leave the device.
+
 ## Download
 
-**[Download Claude Remote for macOS (Apple Silicon)](https://clauderemote.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)**
+**[Download Claude Remote for macOS (Apple Silicon)](https://clauderemote.web.app/releases/Claude%20Remote_0.3.1_aarch64.dmg)**
 
 ### Installation
 
@@ -85,7 +116,7 @@ The built `.app` and `.dmg` will be in `app/src-tauri/target/release/bundle/`.
 
 ## Links
 
-- **Download:** [Claude Remote for macOS](https://clauderemote.web.app/releases/Claude%20Remote_0.1.0_aarch64.dmg)
+- **Download:** [Claude Remote for macOS](https://clauderemote.web.app/releases/Claude%20Remote_0.3.1_aarch64.dmg)
 - **Website:** [clauderemote.web.app](https://clauderemote.web.app)
 - **Web chat:** [clauderemote.web.app/chat.html](https://clauderemote.web.app/chat.html)
 
