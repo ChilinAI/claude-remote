@@ -287,6 +287,13 @@
         inset -2px -2px 4px var(--shadow-light),
         0 0 0 1px var(--red);
     }
+    .message.encrypted-blur {
+      filter: blur(5px);
+      user-select: none;
+      opacity: 0.9;
+      cursor: default;
+      position: relative;
+    }
 
     .message p { margin: 0 0 4px 0; }
     .message p:last-child { margin-bottom: 0; }
@@ -614,7 +621,8 @@
         lastSeen: 'last seen',
         processing: 'processing',
         queue: 'queue',
-        up: 'up'
+        up: 'up',
+        encryptedHint: 'Press "Clear Chat" to start a new encrypted session'
       },
       ru: {
         password: 'Пароль',
@@ -634,7 +642,8 @@
         lastSeen: 'был',
         processing: 'обработка',
         queue: 'очередь',
-        up: 'работает'
+        up: 'работает',
+        encryptedHint: 'Нажмите «Очистить чат» для новой зашифрованной сессии'
       },
       es: {
         password: 'Contraseña',
@@ -654,7 +663,8 @@
         lastSeen: 'visto',
         processing: 'procesando',
         queue: 'cola',
-        up: 'activo'
+        up: 'activo',
+        encryptedHint: 'Pulse "Limpiar chat" para iniciar una nueva sesión cifrada'
       },
       pt: {
         password: 'Senha',
@@ -674,7 +684,8 @@
         lastSeen: 'visto',
         processing: 'processando',
         queue: 'fila',
-        up: 'ativo'
+        up: 'ativo',
+        encryptedHint: 'Pressione "Limpar chat" para iniciar uma nova sessão criptografada'
       },
       fr: {
         password: 'Mot de passe',
@@ -694,7 +705,8 @@
         lastSeen: 'vu',
         processing: 'traitement',
         queue: 'file',
-        up: 'actif'
+        up: 'actif',
+        encryptedHint: 'Appuyez sur « Effacer le chat » pour démarrer une nouvelle session chiffrée'
       },
       de: {
         password: 'Passwort',
@@ -714,7 +726,8 @@
         lastSeen: 'zuletzt',
         processing: 'verarbeite',
         queue: 'Warteschlange',
-        up: 'aktiv'
+        up: 'aktiv',
+        encryptedHint: '„Chat löschen" drücken, um eine neue verschlüsselte Sitzung zu starten'
       },
       ja: {
         password: 'パスワード',
@@ -734,7 +747,8 @@
         lastSeen: '最終確認',
         processing: '処理中',
         queue: 'キュー',
-        up: '稼働中'
+        up: '稼働中',
+        encryptedHint: '「チャットをクリア」を押して新しい暗号化セッションを開始'
       },
       ko: {
         password: '비밀번호',
@@ -754,7 +768,8 @@
         lastSeen: '마지막 확인',
         processing: '처리 중',
         queue: '대기열',
-        up: '실행 중'
+        up: '실행 중',
+        encryptedHint: '"채팅 지우기"를 눌러 새 암호화 세션을 시작하세요'
       },
       zh: {
         password: '密码',
@@ -774,7 +789,8 @@
         lastSeen: '最后在线',
         processing: '处理中',
         queue: '队列',
-        up: '运行中'
+        up: '运行中',
+        encryptedHint: '按"清除聊天"开始新的加密会话'
       },
       hi: {
         password: 'पासवर्ड',
@@ -794,7 +810,8 @@
         lastSeen: 'अंतिम बार',
         processing: 'प्रोसेसिंग',
         queue: 'कतार',
-        up: 'चालू'
+        up: 'चालू',
+        encryptedHint: 'नई एन्क्रिप्टेड सत्र शुरू करने के लिए "चैट साफ़ करें" दबाएँ'
       },
       tr: {
         password: 'Şifre',
@@ -814,7 +831,8 @@
         lastSeen: 'son görülme',
         processing: 'işleniyor',
         queue: 'kuyruk',
-        up: 'aktif'
+        up: 'aktif',
+        encryptedHint: 'Yeni şifreli oturum başlatmak için "Sohbeti temizle"ye basın'
       },
       uk: {
         password: 'Пароль',
@@ -834,7 +852,8 @@
         lastSeen: 'останній раз',
         processing: 'обробка',
         queue: 'черга',
-        up: 'працює'
+        up: 'працює',
+        encryptedHint: 'Натисніть «Очистити чат» для нового зашифрованого сеансу'
       }
     };
 
@@ -1096,7 +1115,7 @@
         return new TextDecoder().decode(decrypted);
       } catch (e) {
         console.error('Decryption failed:', e);
-        return '[decryption error]';
+        return null; // null = can't decrypt (wrong key / other session)
       }
     }
 
@@ -1104,6 +1123,14 @@
       const badge = document.getElementById('encryptionBadge');
       if (badge) {
         badge.style.display = ready ? 'inline-flex' : 'none';
+      }
+    }
+
+    function showEncryptedHint() {
+      const input = document.getElementById('messageInput');
+      if (input) {
+        const t = i18n[currentLang] || i18n.en;
+        input.placeholder = t.encryptedHint;
       }
     }
 
@@ -1215,19 +1242,30 @@
         rendered.add(id);
 
         let text = msg.text || '';
-        if (msg.encrypted && msg.iv && encryptionReady) {
-          text = await decryptText(text, msg.iv);
+        let undecryptable = false;
+        if (msg.encrypted && msg.iv) {
+          if (encryptionReady) {
+            const decrypted = await decryptText(text, msg.iv);
+            if (decrypted !== null) {
+              text = decrypted;
+            } else {
+              undecryptable = true;
+            }
+          } else {
+            undecryptable = true;
+          }
         }
 
         const div = document.createElement('div');
         div.className = `message ${msg.role}`;
         div.id = `msg-${id}`;
-        div.dataset.encrypted = msg.encrypted ? '1' : '0';
-        div.dataset.iv = msg.iv || '';
-        div.dataset.raw = msg.text || '';
+        if (undecryptable) {
+          div.classList.add('encrypted-blur');
+          showEncryptedHint();
+        }
         if (msg.status === 'processing') div.classList.add('processing');
         if (msg.status === 'error') div.classList.add('error');
-        renderMarkdown(div, text, msg.role);
+        renderMarkdown(div, undecryptable ? 'Encrypted message from another session' : text, msg.role);
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
       });
@@ -1237,10 +1275,21 @@
         const div = document.getElementById(`msg-${snap.key}`);
         if (div) {
           let text = msg.text || '';
-          if (msg.encrypted && msg.iv && encryptionReady) {
-            text = await decryptText(text, msg.iv);
+          let undecryptable = false;
+          if (msg.encrypted && msg.iv) {
+            if (encryptionReady) {
+              const decrypted = await decryptText(text, msg.iv);
+              if (decrypted !== null) {
+                text = decrypted;
+              } else {
+                undecryptable = true;
+              }
+            } else {
+              undecryptable = true;
+            }
           }
-          renderMarkdown(div, text, msg.role);
+          div.classList.toggle('encrypted-blur', undecryptable);
+          renderMarkdown(div, undecryptable ? 'Encrypted message from another session' : text, msg.role);
           div.classList.toggle('processing', msg.status === 'processing');
           div.classList.toggle('error', msg.status === 'error');
           container.scrollTop = container.scrollHeight;
