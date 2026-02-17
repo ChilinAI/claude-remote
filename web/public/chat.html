@@ -131,6 +131,67 @@
     .btn-accent { color: var(--accent); }
     .btn-accent:hover { color: var(--accent-hover); }
 
+    /* Hamburger menu (mobile) */
+    .hamburger {
+      display: none;
+      background: var(--surface);
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-right: 6px;
+      margin-top: -2px;
+      box-shadow:
+        3px 3px 6px var(--shadow-dark),
+        -3px -3px 6px var(--shadow-light);
+    }
+    .hamburger:active {
+      box-shadow:
+        inset 2px 2px 4px var(--shadow-dark),
+        inset -2px -2px 4px var(--shadow-light);
+    }
+    .header-actions-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z: 9;
+    }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    @media (max-width: 600px) {
+      .hamburger { display: flex; }
+      .header-actions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 16px;
+        gap: 12px;
+        z-index: 10;
+        box-shadow:
+          4px 4px 8px var(--shadow-dark),
+          -4px -4px 8px var(--shadow-light);
+      }
+      .header-actions.open { display: flex; }
+      .header-actions-overlay.open { display: block; z-index: 9; }
+      .header-actions .btn,
+      .header-actions select { width: 100%; text-align: center; font-size: 16px; padding: 10px 20px; }
+      .header { position: relative; }
+    }
+
     /* Messages */
     .messages {
       flex: 1;
@@ -154,22 +215,30 @@
     }
     .message.user {
       margin-left: auto;
-      background: var(--surface);
-      box-shadow:
-        3px 3px 6px var(--shadow-dark),
-        -3px -3px 6px var(--shadow-light);
+      background: transparent;
+      text-align: right;
       border-bottom-right-radius: 4px;
     }
     .message.assistant {
-      margin-right: auto;
+      max-width: 100%;
+      margin-right: 0;
       position: relative;
+      padding: 8px 10px;
       background: var(--bg);
       box-shadow:
         inset 2px 2px 4px var(--shadow-dark),
         inset -2px -2px 4px var(--shadow-light);
       border-bottom-left-radius: 4px;
-      margin-bottom: 18px;
+      display: flex;
+      align-items: flex-start;
+      white-space: normal;
     }
+    .message.assistant > div {
+      min-width: 0;
+      flex: 1;
+    }
+    .message.assistant > div > p:first-child { margin-top: 0; }
+    .message.assistant > div > p:last-child { margin-bottom: 0; }
     .message.processing::after {
       content: ' ⏳';
     }
@@ -219,38 +288,33 @@
 
     /* TTS buttons */
     .tts-btn {
-      position: absolute;
-      bottom: -14px;
-      right: 8px;
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: var(--surface);
+      background: transparent;
       border: none;
       color: var(--text-dim);
-      font-size: 16px;
+      font-size: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.15s;
-      z-index: 1;
       padding: 0;
       line-height: 1;
-      box-shadow:
-        2px 2px 4px var(--shadow-dark),
-        -2px -2px 4px var(--shadow-light);
+      margin-right: 8px;
+      margin-top: 1px;
+      flex-shrink: 0;
     }
     .tts-btn:active {
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      opacity: 0.6;
     }
     .tts-btn.speaking { color: var(--accent); }
     .tts-btn.loading { opacity: 0.5; pointer-events: none; }
     .tts-provider-picker {
+      display: none;
       position: absolute;
-      bottom: -14px;
+      bottom: 4px;
       left: 8px;
       display: flex;
       gap: 2px;
@@ -440,10 +504,12 @@
           <span id="daemonInfo" class="daemon-info"></span>
         </div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center;">
+      <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+      <div class="header-actions-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+      <div class="header-actions" id="headerActions">
         <select id="ttsSelect" class="btn" style="font-size:11px;padding:4px 6px;appearance:none;-webkit-appearance:none;text-align:center;min-width:50px;" onchange="changeTTSProvider(this.value)">
-          <option value="openai">TTS: OpenAI</option>
-          <option value="elevenlabs">TTS: ElevenLabs</option>
+          <option value="openai">🔊 OpenAI</option>
+          <option value="elevenlabs">🔊 ElevenLabs</option>
         </select>
         <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
         <button class="btn btn-accent" onclick="newChat()" data-i18n="clearChat"></button>
@@ -536,6 +602,11 @@
       });
     }
 
+    function toggleMenu() {
+      document.getElementById('headerActions').classList.toggle('open');
+      document.getElementById('menuOverlay').classList.toggle('open');
+    }
+
     function toggleLang() {
       setLang(currentLang === 'en' ? 'ru' : 'en');
     }
@@ -570,15 +641,19 @@
 
     function renderMarkdown(div, text, role) {
       if (role === 'assistant' && text) {
-        div.innerHTML = marked.parse(text);
-        if (!div.querySelector('.tts-btn')) {
-          const btn = document.createElement('button');
-          btn.className = 'tts-btn';
-          btn.innerHTML = '🔊';
-          btn.title = 'Text to Speech';
-          btn.onclick = () => toggleTTS(btn, text);
-          div.appendChild(btn);
+        const btn = div.querySelector('.tts-btn');
+        div.innerHTML = '';
+        const ttsBtn = btn || document.createElement('button');
+        if (!btn) {
+          ttsBtn.className = 'tts-btn';
+          ttsBtn.innerHTML = '🔊';
+          ttsBtn.title = 'Text to Speech';
+          ttsBtn.onclick = () => toggleTTS(ttsBtn, text);
         }
+        div.appendChild(ttsBtn);
+        const content = document.createElement('div');
+        content.innerHTML = marked.parse(text);
+        div.appendChild(content);
       } else {
         div.textContent = text;
       }

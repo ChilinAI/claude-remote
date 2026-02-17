@@ -315,7 +315,7 @@ async fn run_claude(claude_path: &str, working_dir: &str, prompt: &str) -> Resul
     }
 
     let mut child = tokio::process::Command::new(claude_path)
-        .args(["-p", "--dangerously-skip-permissions", prompt])
+        .args(["-p", "--continue", "--dangerously-skip-permissions", prompt])
         .current_dir(working_dir)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())

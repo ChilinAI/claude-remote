@@ -1,10 +1,10 @@
 {
-  "version": "0.2.5",
-  "notes": "Fix log scroll, show updater errors in log",
-  "pub_date": "2026-02-16T00:00:00Z",
+  "version": "0.2.9",
+  "notes": "Fix: replaced --resume with --continue flag for Claude Code compatibility",
+  "pub_date": "2026-02-17T01:11:13Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNXFCVTNsUlRVaG1xNnpHdnJXTWpvVGw2cHBOOHVOUVpFSjZIR3pXUUJkZDE5eGJ6dE0rUzdpRXg5eW8zaHFLTG41eTZCbVVNOWZEOFhNYXd6Z3FEV0FjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMjc2MzY1CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClRrRmU1L0w3S3pQaVhZZElib09Lc05HWmRvSk90MmJjQ1Nrcm45bnRvZlpmNzVhVUNCWmdHOGJlekRKWWwwTjRwT3M3a1EvVTR3RUpDV2V4MXZMakJ3PT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNW1KeWRMUFBhck05T1BxV2xic3g1eG51YXpCL2xMYWo5WU5uWUFzTjgrdmtWeERYdngwSEROY1Z1R2Q2dys1cHZwYkZpR2xuL2p0WXpvS1NSaTc3a1FFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMjkwNjU3CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6CmJUOEwwV042VzlDNm1GU0lnSklKVitpNWFvUGlkRzBCM2RmNkUvSFcrTm8xaldlckJLZE43UTEwSmZyaHBBR1oyOFBDWEp1cFFHM0dROWNGUmhKdkJBPT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }
