@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">Всё что нужно для удалённой работы с Claude Code</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>Мобильный доступ</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>Мобильный доступ</h3></div>
         <p>Полноценный чат с Claude Code прямо с iPhone. Adaptive дизайн, удобно на любом экране.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>Мгновенная доставка</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>Мгновенная доставка</h3></div>
         <p>Firebase Realtime Database — сообщения доставляются мгновенно. Стриминг ответов в реальном времени.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>Сквозное шифрование</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>Сквозное шифрование</h3></div>
         <p>Все сообщения шифруются в браузере перед отправкой и расшифровываются только на твоём Mac. Обмен ключами ECDH P-256 + AES-256-GCM — даже сервер не видит данные в открытом виде.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>Tray-приложение</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>Tray-приложение</h3></div>
         <p>Минимальное присутствие — иконка в трее. Автозапуск, автообновление, индикатор статуса.</p>
       </div>
     </div>

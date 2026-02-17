@@ -465,17 +465,9 @@
         log('Daemon auto-started', 'success');
       }
 
-      // Check for updates
-      try {
-        const result = await invoke('check_for_updates');
-        if (result === 'latest') {
-          log('Up to date');
-        } else {
-          log(`Update v${result} installing...`, 'success');
-        }
-      } catch (e) {
-        log(`Update error: ${e}`, 'error');
-      }
+      // Updates are checked automatically in background every hour
+      // and installed when daemon is stopped
+      log('Updates: auto-check enabled (hourly)');
     }
 
     init();

@@ -355,23 +355,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -504,23 +501,23 @@
     <p class="section-subtitle">Everything you need for remote AI-powered coding</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>Mobile Access</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>Mobile Access</h3></div>
         <p>Full chat with Claude Code right from your iPhone or Android. Responsive design, comfortable on any screen.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>Instant Delivery</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>Instant Delivery</h3></div>
         <p>Firebase Realtime Database — messages are delivered instantly. Response streaming in real time.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>End-to-End Encrypted</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>End-to-End Encrypted</h3></div>
         <p>All messages are encrypted in your browser before being sent and decrypted only on your Mac. ECDH P-256 key exchange + AES-256-GCM — even the server never sees your data in plain text.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>Lightweight Tray App</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>Lightweight Tray App</h3></div>
         <p>Minimal footprint — just an icon in your menu bar. Auto-start, auto-update, live status indicator.</p>
       </div>
     </div>

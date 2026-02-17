@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">Tout ce dont vous avez besoin pour coder avec l'IA à distance</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>Accès mobile</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>Accès mobile</h3></div>
         <p>Chat complet avec Claude Code depuis votre iPhone ou Android. Design responsive, confortable sur tout écran.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>Livraison instantanée</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>Livraison instantanée</h3></div>
         <p>Firebase Realtime Database — messages livrés instantanément. Streaming des réponses en temps réel.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>Chiffrement de bout en bout</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>Chiffrement de bout en bout</h3></div>
         <p>Tous les messages sont chiffrés dans votre navigateur avant l'envoi et déchiffrés uniquement sur votre Mac. Échange de clés ECDH P-256 + AES-256-GCM — même le serveur ne voit jamais vos données en clair.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>App légère dans la barre</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>App légère dans la barre</h3></div>
         <p>Présence minimale — juste une icône dans la barre de menu. Démarrage auto, mise à jour auto, indicateur de statut en direct.</p>
       </div>
     </div>

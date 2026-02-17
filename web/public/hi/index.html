@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">रिमोट AI कोडिंग के लिए जो कुछ भी चाहिए</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>मोबाइल एक्सेस</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>मोबाइल एक्सेस</h3></div>
         <p>iPhone या Android से Claude Code के साथ फुल चैट। रेस्पॉन्सिव डिज़ाइन, किसी भी स्क्रीन पर आरामदायक।</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>तुरंत डिलीवरी</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>तुरंत डिलीवरी</h3></div>
         <p>Firebase Realtime Database — मैसेज तुरंत डिलीवर होते हैं। रियल-टाइम में रेस्पॉन्स स्ट्रीमिंग।</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>एंड-टू-एंड एन्क्रिप्शन</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>एंड-टू-एंड एन्क्रिप्शन</h3></div>
         <p>सभी संदेश भेजने से पहले ब्राउज़र में एन्क्रिप्ट होते हैं और केवल आपके Mac पर डिक्रिप्ट होते हैं। ECDH P-256 कुंजी विनिमय + AES-256-GCM — सर्वर भी डेटा प्लेनटेक्स्ट में नहीं देख सकता।</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>लाइटवेट ट्रे ऐप</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>लाइटवेट ट्रे ऐप</h3></div>
         <p>न्यूनतम फुटप्रिंट — मेन्यू बार में बस एक आइकन। ऑटो-स्टार्ट, ऑटो-अपडेट, लाइव स्टेटस इंडिकेटर।</p>
       </div>
     </div>

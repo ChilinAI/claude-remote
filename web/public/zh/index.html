@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">远程AI编程所需的一切</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>移动访问</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>移动访问</h3></div>
         <p>从iPhone或Android与Claude Code完整聊天。响应式设计，任何屏幕都舒适。</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>即时传递</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>即时传递</h3></div>
         <p>Firebase Realtime Database——消息即时传递。实时响应流式传输。</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>端到端加密</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>端到端加密</h3></div>
         <p>所有消息在浏览器中加密后发送，仅在你的Mac上解密。ECDH P-256密钥交换 + AES-256-GCM — 即使服务器也无法看到明文数据。</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>轻量托盘应用</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>轻量托盘应用</h3></div>
         <p>最小占用——菜单栏中只有一个图标。自动启动、自动更新、实时状态指示。</p>
       </div>
     </div>

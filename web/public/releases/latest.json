@@ -1,10 +1,10 @@
 {
-  "version": "0.3.1",
-  "notes": "Fix E2E key re-exchange on page refresh",
-  "pub_date": "2026-02-17T09:26:03Z",
+  "version": "0.3.2",
+  "notes": "Background auto-updates, feature card layout fix",
+  "pub_date": "2026-02-17T09:39:53Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNWs5ODBkK0dFanN2RkV2Q2J3UmVWbTVMRlJWc1RQQm1hOWNweTFYNytDaEFMVXQ5RFVzVFduSzczNEVUOGxWUzNFWnZVZGFZWlhjbnlEdFY4SDRXTkF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMzIwMzU0CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClBadkxJalkvT1dySkxhWEhvZHdQcTVncEJkV0cvYVF1NFgrQ2twTEE5azlJbEU4KzFZa1I0ait6bTcrRnBMR3FPbnl6Y0xBVFBlOVJxaDhsQ0hhMUNRPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNW5rcGVhTFo4aGRmNzh3RXA4SktJU0FRRkF3ZWFnQ0hMUTlmeUFiR0laSmtlRUxFemFON0JhK0tMazZFL2kyV2FpcFFqdml3TWZLM1FxVktKajI4N3c0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMzIxMTg0CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClkwQXhUZ1YwMWZOUlNuR2FDcjdtZHBXU1R6NjQyWG8rYkZVOW84YlB4RGpjM21pVVF1YU1rN2ZJSjBRTkVVZ0orVC9TUVZyWnNtWkVXNzVRR1pqS0NBPT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }

@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">원격 AI 코딩에 필요한 모든 것</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>모바일 접근</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>모바일 접근</h3></div>
         <p>iPhone이나 Android에서 Claude Code와 풀 채팅. 반응형 디자인으로 어떤 화면에서도 편리합니다.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>즉시 전달</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>즉시 전달</h3></div>
         <p>Firebase Realtime Database — 메시지가 즉시 전달됩니다. 실시간 응답 스트리밍.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>종단간 암호화</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>종단간 암호화</h3></div>
         <p>모든 메시지는 브라우저에서 암호화된 후 전송되며 Mac에서만 복호화됩니다. ECDH P-256 키 교환 + AES-256-GCM — 서버조차 데이터를 평문으로 볼 수 없습니다.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>가벼운 트레이 앱</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>가벼운 트레이 앱</h3></div>
         <p>최소한의 설치 공간 — 메뉴 막대에 아이콘 하나만. 자동 시작, 자동 업데이트, 실시간 상태 표시.</p>
       </div>
     </div>

@@ -843,6 +843,49 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
     }
 }
 
+// Background update checker: runs every hour, installs when daemon is stopped
+async fn background_update_loop(app: tauri::AppHandle, state: Arc<AppState>) {
+    use tauri_plugin_updater::UpdaterExt;
+
+    // Initial delay: 60 seconds after startup
+    tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
+
+    loop {
+        let is_running = *state.running.lock().await;
+        let is_busy = *state.busy.lock().await;
+
+        if !is_running && !is_busy {
+            println!("[updater] Background check...");
+            match app.updater() {
+                Ok(updater) => {
+                    match updater.check().await {
+                        Ok(Some(update)) => {
+                            let version = update.version.clone();
+                            println!("[updater] Update v{} found, daemon stopped — installing", version);
+
+                            match update.download_and_install(|_, _| {}, || {}).await {
+                                Ok(_) => {
+                                    println!("[updater] v{} installed, restarting...", version);
+                                    app.restart();
+                                }
+                                Err(e) => println!("[updater] Install error: {}", e),
+                            }
+                        }
+                        Ok(None) => println!("[updater] Up to date"),
+                        Err(e) => println!("[updater] Check error: {}", e),
+                    }
+                }
+                Err(e) => println!("[updater] Init error: {}", e),
+            }
+        } else {
+            println!("[updater] Daemon running, skipping update check");
+        }
+
+        // Check every hour
+        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+    }
+}
+
 #[tauri::command]
 async fn get_version(app: tauri::AppHandle) -> Result<String, String> {
     Ok(app.package_info().version.to_string())
@@ -947,6 +990,7 @@ pub fn run() {
     let state_for_daemon = state.clone();
     let crypto_for_daemon = crypto_state.clone();
     let state_for_heartbeat = state.clone();
+    let state_for_updater = state.clone();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -1017,6 +1061,7 @@ pub fn run() {
             // Start polling daemon and heartbeat in background
             tauri::async_runtime::spawn(poll_messages(state_for_daemon, crypto_for_daemon));
             tauri::async_runtime::spawn(heartbeat_loop(state_for_heartbeat));
+            tauri::async_runtime::spawn(background_update_loop(app.handle().clone(), state_for_updater));
 
             Ok(())
         })

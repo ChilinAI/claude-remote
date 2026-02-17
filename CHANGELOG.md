@@ -2,6 +2,14 @@
 
 ## 2026-02-17
 
+### Feature cards: inline icon+title layout на лендингах
+
+**Файлы:** `web/public/{ru,es,pt,fr,de,ja,ko,zh,hi,tr,uk}/index.html` (все 11 языковых версий)
+
+**Что сделано:**
+- **CSS:** Заменены стили `.feature-icon` (neumorphic 48x48 блок) и `.feature h3` на inline-layout: новый `.feature-header` (flex, gap 12px), иконка 28px без фона, h3 без margin
+- **HTML:** Иконка и заголовок в каждой feature-карточке обёрнуты в `<div class="feature-header">` — теперь отображаются в одну строку вместо вертикального стека
+
 ### E2E шифрование сообщений (ECDH P-256 + AES-256-GCM)
 
 **Файлы:** `web/public/chat.html`, `app/src-tauri/src/lib.rs`, `app/src-tauri/Cargo.toml`

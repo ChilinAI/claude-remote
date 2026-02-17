@@ -348,23 +348,20 @@
         6px 6px 12px var(--shadow-dark),
         -6px -6px 12px var(--shadow-light);
     }
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--bg);
-      border-radius: 12px;
+    .feature-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-      box-shadow:
-        inset 2px 2px 4px var(--shadow-dark),
-        inset -2px -2px 4px var(--shadow-light);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feature-icon {
+      font-size: 28px;
+      line-height: 1;
+      flex-shrink: 0;
     }
     .feature h3 {
       font-size: 17px;
-      margin-bottom: 8px;
+      margin: 0;
     }
     .feature p {
       color: var(--text-dim);
@@ -497,23 +494,23 @@
     <p class="section-subtitle">Alles was du für KI-gestütztes Programmieren aus der Ferne brauchst</p>
     <div class="features">
       <div class="feature">
-        <div class="feature-icon">&#128241;</div>
-        <h3>Mobiler Zugriff</h3>
+        <div class="feature-header"><div class="feature-icon">&#128241;</div>
+        <h3>Mobiler Zugriff</h3></div>
         <p>Vollständiger Chat mit Claude Code direkt vom iPhone oder Android. Responsives Design, komfortabel auf jedem Bildschirm.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#9889;</div>
-        <h3>Sofortige Zustellung</h3>
+        <div class="feature-header"><div class="feature-icon">&#9889;</div>
+        <h3>Sofortige Zustellung</h3></div>
         <p>Firebase Realtime Database — Nachrichten werden sofort zugestellt. Antwort-Streaming in Echtzeit.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128274;</div>
-        <h3>Ende-zu-Ende-Verschlüsselung</h3>
+        <div class="feature-header"><div class="feature-icon">&#128274;</div>
+        <h3>Ende-zu-Ende-Verschlüsselung</h3></div>
         <p>Alle Nachrichten werden im Browser verschlüsselt und erst auf deinem Mac entschlüsselt. ECDH P-256 Schlüsselaustausch + AES-256-GCM — selbst der Server sieht deine Daten nie im Klartext.</p>
       </div>
       <div class="feature">
-        <div class="feature-icon">&#128187;</div>
-        <h3>Leichte Tray-App</h3>
+        <div class="feature-header"><div class="feature-icon">&#128187;</div>
+        <h3>Leichte Tray-App</h3></div>
         <p>Minimaler Fußabdruck — nur ein Symbol in der Menüleiste. Autostart, automatische Updates, Live-Statusanzeige.</p>
       </div>
     </div>
