@@ -9,6 +9,14 @@ use tauri::{
 use tokio::io::AsyncReadExt;
 use tokio::sync::Mutex;
 
+use aes_gcm::{
+    aead::{Aead, KeyInit},
+    Aes256Gcm, Nonce,
+};
+use base64::{engine::general_purpose::STANDARD as B64, Engine};
+use p256::{ecdh::EphemeralSecret, EncodedPoint, PublicKey};
+use rand::rngs::OsRng;
+
 // === App State ===
 
 #[derive(Default, Serialize, Deserialize, Clone)]
@@ -35,6 +43,66 @@ struct AppState {
     config: Mutex<AppConfig>,
     running: Mutex<bool>,
     busy: Mutex<bool>,
+}
+
+// === E2E Encryption State ===
+// Per-session ECDH keys and derived AES key
+// HashMap<session_id, AES key bytes>
+
+struct CryptoState {
+    // session_id -> (AES-256 key bytes, browser_pub_key_b64 used to derive)
+    session_keys: Mutex<std::collections::HashMap<String, ([u8; 32], String)>>,
+}
+
+impl Default for CryptoState {
+    fn default() -> Self {
+        Self {
+            session_keys: Mutex::new(std::collections::HashMap::new()),
+        }
+    }
+}
+
+fn make_cipher(key: &[u8; 32]) -> Aes256Gcm {
+    Aes256Gcm::new_from_slice(key).unwrap()
+}
+
+fn encrypt_message(cipher: &Aes256Gcm, plaintext: &str) -> Result<(String, String), String> {
+    let iv_bytes: [u8; 12] = rand::random();
+    let nonce = Nonce::from_slice(&iv_bytes);
+    let ciphertext = cipher
+        .encrypt(nonce, plaintext.as_bytes())
+        .map_err(|e| format!("Encryption error: {}", e))?;
+    Ok((B64.encode(&ciphertext), B64.encode(&iv_bytes)))
+}
+
+fn decrypt_message(cipher: &Aes256Gcm, ciphertext_b64: &str, iv_b64: &str) -> Result<String, String> {
+    let ciphertext = B64.decode(ciphertext_b64).map_err(|e| format!("Base64 decode error: {}", e))?;
+    let iv_bytes = B64.decode(iv_b64).map_err(|e| format!("IV decode error: {}", e))?;
+    let nonce = Nonce::from_slice(&iv_bytes);
+    let plaintext = cipher
+        .decrypt(nonce, ciphertext.as_ref())
+        .map_err(|e| format!("Decryption error: {}", e))?;
+    String::from_utf8(plaintext).map_err(|e| format!("UTF-8 error: {}", e))
+}
+
+/// Generate ECDH keypair, return (secret, public_key_base64)
+fn generate_ecdh_keypair() -> (EphemeralSecret, String) {
+    let secret = EphemeralSecret::random(&mut OsRng);
+    let public_key = EncodedPoint::from(secret.public_key());
+    let pub_b64 = B64.encode(public_key.as_bytes());
+    (secret, pub_b64)
+}
+
+/// Derive AES-256 key bytes from our secret + browser's public key
+fn derive_aes_key(secret: EphemeralSecret, browser_pub_b64: &str) -> Result<[u8; 32], String> {
+    let pub_bytes = B64.decode(browser_pub_b64).map_err(|e| format!("Base64 decode: {}", e))?;
+    let browser_pub = PublicKey::from_sec1_bytes(&pub_bytes)
+        .map_err(|e| format!("Invalid public key: {}", e))?;
+    let shared_secret = secret.diffie_hellman(&browser_pub);
+    let raw = shared_secret.raw_secret_bytes();
+    let mut key = [0u8; 32];
+    key.copy_from_slice(raw);
+    Ok(key)
 }
 
 // === Config persistence ===
@@ -403,7 +471,7 @@ async fn heartbeat_loop(state: Arc<AppState>) {
     }
 }
 
-async fn poll_messages(state: Arc<AppState>) {
+async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
     let client = reqwest::Client::new();
 
     loop {
@@ -475,10 +543,59 @@ async fn poll_messages(state: Arc<AppState>) {
         };
 
         for (session_id, session_data) in sessions {
+            // === E2E Key Exchange ===
+            // Check if browser posted its public key
+            if let Some(keys) = session_data.get("keys") {
+                let browser_key = keys.get("browser").and_then(|k| k.as_str());
+
+                if let Some(browser_pub) = browser_key {
+                    // Check if we need to (re-)derive: no cipher yet, or browser key changed
+                    let needs_derive = {
+                        let keys_map = crypto.session_keys.lock().await;
+                        match keys_map.get(session_id) {
+                            None => true,
+                            Some((_, stored_browser_key)) => stored_browser_key != browser_pub,
+                        }
+                    };
+
+                    if needs_derive {
+                        let (secret, our_pub_b64) = generate_ecdh_keypair();
+
+                        match derive_aes_key(secret, browser_pub) {
+                            Ok(key_bytes) => {
+                                crypto.session_keys.lock().await.insert(
+                                    session_id.clone(),
+                                    (key_bytes, browser_pub.to_string()),
+                                );
+                                println!("[crypto] Derived AES key for session {}", session_id);
+
+                                // Always write our new public key (browser deleted the old one)
+                                let key_url = format!(
+                                    "{}/sessions/{}/{}/keys/daemon.json?auth={}",
+                                    config.firebase_db_url, uid, session_id, token
+                                );
+                                let _ = client
+                                    .put(&key_url)
+                                    .json(&serde_json::json!(our_pub_b64))
+                                    .send()
+                                    .await;
+                                println!("[crypto] Published daemon public key for session {}", session_id);
+                            }
+                            Err(e) => {
+                                println!("[crypto] Key derivation failed for {}: {}", session_id, e);
+                            }
+                        }
+                    }
+                }
+            }
+
             let messages = match session_data.get("messages").and_then(|m| m.as_object()) {
                 Some(m) => m,
                 None => continue,
             };
+
+            // Get cipher for this session (if encryption is set up)
+            let session_cipher = crypto.session_keys.lock().await.get(session_id).map(|(k, _)| make_cipher(k));
 
             for (msg_id, msg_data) in messages {
                 let status = msg_data
@@ -503,14 +620,38 @@ async fn poll_messages(state: Arc<AppState>) {
                     continue;
                 }
 
-                let text = msg_data
+                let raw_text = msg_data
                     .get("text")
                     .and_then(|s| s.as_str())
                     .unwrap_or("");
 
-                if text.is_empty() {
+                if raw_text.is_empty() {
                     continue;
                 }
+
+                // Decrypt if message is encrypted
+                let is_encrypted = msg_data
+                    .get("encrypted")
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(false);
+
+                let text = if is_encrypted {
+                    let iv = msg_data.get("iv").and_then(|v| v.as_str()).unwrap_or("");
+                    if let Some(ref cipher) = session_cipher {
+                        match decrypt_message(cipher, raw_text, iv) {
+                            Ok(decrypted) => decrypted,
+                            Err(e) => {
+                                println!("[crypto] Decrypt failed for {}: {}", msg_id, e);
+                                continue;
+                            }
+                        }
+                    } else {
+                        println!("[crypto] No cipher for encrypted message in session {}", session_id);
+                        continue;
+                    }
+                } else {
+                    raw_text.to_string()
+                };
 
                 let preview: String = text.chars().take(50).collect();
                 println!("[daemon] Processing: \"{}\"", preview);
@@ -529,7 +670,7 @@ async fn poll_messages(state: Arc<AppState>) {
                     .await;
 
                 // Run Claude
-                let response = run_claude(&config.claude_path, &config.working_dir, text).await;
+                let response = run_claude(&config.claude_path, &config.working_dir, &text).await;
 
                 let (response_text, response_status) = match response {
                     Ok(text) => (text, "done"),
@@ -576,19 +717,46 @@ async fn poll_messages(state: Arc<AppState>) {
                     }
                 };
 
-                // Write response message
+                // Write response message (encrypted if cipher available)
                 let resp_url = format!(
                     "{}/sessions/{}/{}/messages.json?auth={}",
                     config.firebase_db_url, uid, session_id, fresh_token
                 );
-                let _ = client
-                    .post(&resp_url)
-                    .json(&serde_json::json!({
+
+                let resp_payload = if let Some(ref cipher) = session_cipher {
+                    match encrypt_message(cipher, &response_text) {
+                        Ok((enc_text, iv)) => {
+                            serde_json::json!({
+                                "role": "assistant",
+                                "text": enc_text,
+                                "iv": iv,
+                                "encrypted": true,
+                                "status": response_status,
+                                "timestamp": {".sv": "timestamp"}
+                            })
+                        }
+                        Err(e) => {
+                            println!("[crypto] Encrypt failed, sending plaintext: {}", e);
+                            serde_json::json!({
+                                "role": "assistant",
+                                "text": response_text,
+                                "status": response_status,
+                                "timestamp": {".sv": "timestamp"}
+                            })
+                        }
+                    }
+                } else {
+                    serde_json::json!({
                         "role": "assistant",
                         "text": response_text,
                         "status": response_status,
                         "timestamp": {".sv": "timestamp"}
-                    }))
+                    })
+                };
+
+                let _ = client
+                    .post(&resp_url)
+                    .json(&resp_payload)
                     .send()
                     .await;
 
@@ -775,7 +943,9 @@ pub fn run() {
         }
     }
 
+    let crypto_state = Arc::new(CryptoState::default());
     let state_for_daemon = state.clone();
+    let crypto_for_daemon = crypto_state.clone();
     let state_for_heartbeat = state.clone();
 
     tauri::Builder::default()
@@ -845,7 +1015,7 @@ pub fn run() {
             });
 
             // Start polling daemon and heartbeat in background
-            tauri::async_runtime::spawn(poll_messages(state_for_daemon));
+            tauri::async_runtime::spawn(poll_messages(state_for_daemon, crypto_for_daemon));
             tauri::async_runtime::spawn(heartbeat_loop(state_for_heartbeat));
 
             Ok(())

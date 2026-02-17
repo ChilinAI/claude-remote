@@ -1,5 +1,27 @@
 # Claude Remote — Changelog
 
+## 2026-02-17
+
+### E2E шифрование сообщений (ECDH P-256 + AES-256-GCM)
+
+**Файлы:** `web/public/chat.html`, `app/src-tauri/src/lib.rs`, `app/src-tauri/Cargo.toml`
+
+**Что сделано:**
+- **Браузер (chat.html):** Web Crypto API — генерация ECDH P-256 keypair при создании/загрузке сессии, запись public key в RTDB (`sessions/{uid}/{sessionId}/keys/browser`), ожидание daemon public key, derivation AES-256-GCM shared key, шифрование исходящих и дешифрование входящих сообщений
+- **Tauri daemon (lib.rs):** При обнаружении browser public key в сессии — генерация своего ECDH keypair, публикация daemon public key в RTDB, derivation того же AES-256-GCM ключа, дешифрование пользовательских сообщений перед отправкой в Claude, шифрование ответов
+- **Backward compatibility:** поле `encrypted: true` + `iv` в сообщениях — старые незашифрованные сообщения рендерятся как есть
+- **UI:** бейдж "E2E" с замком в header чата, появляется после успешного обмена ключами
+- **Cargo.toml:** добавлены `p256`, `aes-gcm`, `base64`, `rand`
+
+**Как работает:**
+1. Браузер создаёт ECDH keypair, пишет public key в RTDB
+2. Daemon видит browser key, создаёт свой keypair, пишет daemon key, вычисляет shared secret
+3. Браузер видит daemon key, вычисляет тот же shared secret
+4. Все сообщения шифруются AES-256-GCM с уникальным IV/nonce
+5. В RTDB хранятся только зашифрованные данные + публичные ключи
+
+---
+
 ## 2026-02-16 (ночь 2)
 
 ### Исправлен пустой dropdown языков на мобильном + добавлен испанский в чат

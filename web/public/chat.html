@@ -541,6 +541,9 @@
           <span id="statusText" data-i18n="connecting"></span>
           <span id="daemonInfo" class="daemon-info"></span>
         </div>
+        <div class="status-badge" id="encryptionBadge" style="display:none;gap:4px;font-size:10px;color:var(--green);">
+          <span>&#128274;</span><span>E2E</span>
+        </div>
       </div>
       <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
       <div class="header-actions-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
@@ -1041,6 +1044,95 @@
     let currentSessionId = null;
     let messagesRef = null;
 
+    // === E2E ENCRYPTION (ECDH P-256 + AES-256-GCM) ===
+    let cryptoKeyPair = null;   // browser ECDH key pair
+    let sharedAESKey = null;    // derived AES-GCM key for current session
+    let encryptionReady = false;
+
+    async function generateKeyPair() {
+      cryptoKeyPair = await crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false, ['deriveKey']
+      );
+      // Export public key as base64
+      const raw = await crypto.subtle.exportKey('raw', cryptoKeyPair.publicKey);
+      return btoa(String.fromCharCode(...new Uint8Array(raw)));
+    }
+
+    async function deriveAESKey(daemonPubKeyB64) {
+      const raw = Uint8Array.from(atob(daemonPubKeyB64), c => c.charCodeAt(0));
+      const daemonPub = await crypto.subtle.importKey(
+        'raw', raw, { name: 'ECDH', namedCurve: 'P-256' }, false, []
+      );
+      sharedAESKey = await crypto.subtle.deriveKey(
+        { name: 'ECDH', public: daemonPub },
+        cryptoKeyPair.privateKey,
+        { name: 'AES-GCM', length: 256 },
+        false, ['encrypt', 'decrypt']
+      );
+      encryptionReady = true;
+      updateEncryptionStatus(true);
+    }
+
+    async function encryptText(plaintext) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encoded = new TextEncoder().encode(plaintext);
+      const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv }, sharedAESKey, encoded
+      );
+      return {
+        text: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+        iv: btoa(String.fromCharCode(...iv))
+      };
+    }
+
+    async function decryptText(ciphertextB64, ivB64) {
+      try {
+        const ciphertext = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
+        const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv }, sharedAESKey, ciphertext
+        );
+        return new TextDecoder().decode(decrypted);
+      } catch (e) {
+        console.error('Decryption failed:', e);
+        return '[decryption error]';
+      }
+    }
+
+    function updateEncryptionStatus(ready) {
+      const badge = document.getElementById('encryptionBadge');
+      if (badge) {
+        badge.style.display = ready ? 'inline-flex' : 'none';
+      }
+    }
+
+    async function setupEncryption() {
+      encryptionReady = false;
+      sharedAESKey = null;
+      updateEncryptionStatus(false);
+
+      const pubKeyB64 = await generateKeyPair();
+      const sessionKeysRef = rtdb.ref(`sessions/${currentUser.uid}/${currentSessionId}/keys`);
+
+      // Write browser key and delete stale daemon key atomically
+      // This forces the daemon to re-derive with our new keypair
+      await sessionKeysRef.update({
+        browser: pubKeyB64,
+        daemon: null   // delete old daemon key
+      });
+
+      // Listen for daemon to post its new public key
+      const daemonKeyRef = sessionKeysRef.child('daemon');
+      daemonKeyRef.on('value', async snap => {
+        const daemonKey = snap.val();
+        if (daemonKey && !encryptionReady) {
+          await deriveAESKey(daemonKey);
+          daemonKeyRef.off();
+        }
+      });
+    }
+
     // === AUTH ===
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -1077,7 +1169,7 @@
     // === SESSION MANAGEMENT ===
     function loadOrCreateSession() {
       const sessionsRef = rtdb.ref(`sessions/${currentUser.uid}`);
-      sessionsRef.limitToLast(5).once('value', snap => {
+      sessionsRef.limitToLast(5).once('value', async snap => {
         if (snap.exists()) {
           const keys = Object.keys(snap.val()).filter(k => k !== '_heartbeat');
           if (keys.length > 0) {
@@ -1088,6 +1180,7 @@
         } else {
           createNewSession();
         }
+        await setupEncryption();
         listenToMessages();
       });
     }
@@ -1099,10 +1192,11 @@
       newRef.set({ createdAt: firebase.database.ServerValue.TIMESTAMP });
     }
 
-    function newChat() {
+    async function newChat() {
       if (messagesRef) messagesRef.off();
       document.getElementById('messagesContainer').innerHTML = '';
       createNewSession();
+      await setupEncryption();
       listenToMessages();
     }
 
@@ -1114,27 +1208,39 @@
       const container = document.getElementById('messagesContainer');
       const rendered = new Set();
 
-      messagesRef.orderByChild('timestamp').on('child_added', snap => {
+      messagesRef.orderByChild('timestamp').on('child_added', async snap => {
         const msg = snap.val();
         const id = snap.key;
         if (rendered.has(id)) return;
         rendered.add(id);
 
+        let text = msg.text || '';
+        if (msg.encrypted && msg.iv && encryptionReady) {
+          text = await decryptText(text, msg.iv);
+        }
+
         const div = document.createElement('div');
         div.className = `message ${msg.role}`;
         div.id = `msg-${id}`;
+        div.dataset.encrypted = msg.encrypted ? '1' : '0';
+        div.dataset.iv = msg.iv || '';
+        div.dataset.raw = msg.text || '';
         if (msg.status === 'processing') div.classList.add('processing');
         if (msg.status === 'error') div.classList.add('error');
-        renderMarkdown(div, msg.text || '', msg.role);
+        renderMarkdown(div, text, msg.role);
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
       });
 
-      messagesRef.on('child_changed', snap => {
+      messagesRef.on('child_changed', async snap => {
         const msg = snap.val();
         const div = document.getElementById(`msg-${snap.key}`);
         if (div) {
-          renderMarkdown(div, msg.text || '', msg.role);
+          let text = msg.text || '';
+          if (msg.encrypted && msg.iv && encryptionReady) {
+            text = await decryptText(text, msg.iv);
+          }
+          renderMarkdown(div, text, msg.role);
           div.classList.toggle('processing', msg.status === 'processing');
           div.classList.toggle('error', msg.status === 'error');
           container.scrollTop = container.scrollHeight;
@@ -1152,12 +1258,25 @@
       autoResize(input);
 
       const msgRef = rtdb.ref(`sessions/${currentUser.uid}/${currentSessionId}/messages`);
-      await msgRef.push({
-        role: 'user',
-        text: text,
-        status: 'pending',
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-      });
+
+      if (encryptionReady) {
+        const { text: encrypted, iv } = await encryptText(text);
+        await msgRef.push({
+          role: 'user',
+          text: encrypted,
+          iv: iv,
+          encrypted: true,
+          status: 'pending',
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      } else {
+        await msgRef.push({
+          role: 'user',
+          text: text,
+          status: 'pending',
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
     }
 
     // === UI HELPERS ===
