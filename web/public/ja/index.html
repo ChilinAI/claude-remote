@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claude Remote — Access Claude Code from Any Device</title>
-  <meta name="description" content="Control Claude Code on your Mac from iPhone, Android, or any browser. Send coding tasks remotely, get real-time responses. Free macOS tray app with Firebase-powered web chat.">
-  <meta name="keywords" content="remote Claude Code, Claude Code remote access, use Claude Code from phone, control Mac terminal remotely, run CLI from mobile, remote AI coding assistant, Claude Code mobile interface, Claude Code web chat, remote pair programming with AI, Tauri Claude Code app, Firebase Claude Code bridge, Claude Code macOS tray app">
+  <title>Claude Remote — どこからでもClaude Codeにアクセス</title>
+  <meta name="description" content="iPhoneやAndroid、ブラウザからMacのClaude Codeを操作。コーディングタスクをリモートで送信し、リアルタイムで結果を受け取る。無料のmacOSアプリ。">
   <link rel="alternate" hreflang="en" href="/">
   <link rel="alternate" hreflang="ru" href="/ru/">
   <link rel="alternate" hreflang="es" href="/es/">
@@ -18,30 +17,24 @@
   <link rel="alternate" hreflang="hi" href="/hi/">
   <link rel="alternate" hreflang="tr" href="/tr/">
   <link rel="alternate" hreflang="uk" href="/uk/">
-  <link rel="canonical" href="https://clauderemote.web.app/">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Claude Remote — Access Claude Code from Any Device">
-  <meta property="og:description" content="Control Claude Code on your Mac from iPhone, Android, or any browser. Send coding tasks remotely, get real-time responses.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://clauderemote.web.app/">
-  <meta property="og:image" content="https://clauderemote.web.app/assets/hero.jpg">
+  <link rel="canonical" href="https://clauderemote.web.app/ja/">
 
   <script>
     (function() {
       var chosen = localStorage.getItem('lang_chosen');
-      if (chosen && chosen !== 'en') {
-        window.location.replace('/' + chosen + '/');
+      if (chosen && chosen !== 'ja') {
+        window.location.replace(chosen === 'en' ? '/' : '/' + chosen + '/');
         return;
       }
       if (!chosen) {
         var lang = (navigator.language || navigator.userLanguage || '').split('-')[0];
         var supported = ['en','ru','es','pt','fr','de','ja','ko','zh','hi','tr','uk'];
-        if (lang !== 'en' && supported.includes(lang)) {
-          localStorage.setItem('lang_chosen', lang);
-          window.location.replace('/' + lang + '/');
+        if (lang !== 'ja') {
+          var target = supported.includes(lang) ? lang : 'en';
+          localStorage.setItem('lang_chosen', target);
+          window.location.replace(target === 'en' ? '/' : '/' + target + '/');
         } else {
-          localStorage.setItem('lang_chosen', 'en');
+          localStorage.setItem('lang_chosen', 'ja');
         }
       }
     })();
@@ -432,19 +425,19 @@
   <nav>
     <div class="nav-logo">Claude <span>Remote</span></div>
     <div class="nav-links">
-      <a href="#how">How it Works</a>
-      <a href="#features">Features</a>
-      <a href="#install">Install</a>
+      <a href="#how">使い方</a>
+      <a href="#features">機能</a>
+      <a href="#install">インストール</a>
       <div class="lang-switcher">
         <a class="lang-globe" onclick="toggleLangMenu(event)">&#127760;</a>
         <div class="lang-dropdown" id="langDropdown">
-          <a href="/" class="active" onclick="localStorage.setItem('lang_chosen','en')">English</a>
+          <a href="/" onclick="localStorage.setItem('lang_chosen','en')">English</a>
           <a href="/ru/" onclick="localStorage.setItem('lang_chosen','ru')">Русский</a>
           <a href="/es/" onclick="localStorage.setItem('lang_chosen','es')">Español</a>
           <a href="/pt/" onclick="localStorage.setItem('lang_chosen','pt')">Português</a>
           <a href="/fr/" onclick="localStorage.setItem('lang_chosen','fr')">Français</a>
           <a href="/de/" onclick="localStorage.setItem('lang_chosen','de')">Deutsch</a>
-          <a href="/ja/" onclick="localStorage.setItem('lang_chosen','ja')">日本語</a>
+          <a href="/ja/" class="active" onclick="localStorage.setItem('lang_chosen','ja')">日本語</a>
           <a href="/ko/" onclick="localStorage.setItem('lang_chosen','ko')">한국어</a>
           <a href="/zh/" onclick="localStorage.setItem('lang_chosen','zh')">中文</a>
           <a href="/hi/" onclick="localStorage.setItem('lang_chosen','hi')">हिन्दी</a>
@@ -452,110 +445,110 @@
           <a href="/uk/" onclick="localStorage.setItem('lang_chosen','uk')">Українська</a>
         </div>
       </div>
-      <a href="chat.html" class="nav-cta">Open Chat</a>
+      <a href="/chat.html" class="nav-cta">チャットを開く</a>
     </div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
     <div class="hero-text">
-      <h1>Access <span>Claude Code</span> from Any Device</h1>
-      <p>Send coding tasks to your Mac from anywhere. Claude Code runs on your computer — you control it from your phone or any browser.</p>
+      <h1>どこからでも<span>Claude Code</span>にアクセス</h1>
+      <p>どこからでもMacにコーディングタスクを送信。Claude Codeはあなたのコンピュータで実行され、スマートフォンやブラウザから操作できます。</p>
       <div class="hero-buttons">
-        <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
-          &#xF8FF; Download for Mac
+        <a href="/releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
+          &#xF8FF; Mac用ダウンロード
         </a>
-        <a href="chat.html" class="btn-secondary">
-          Open Web Chat &rarr;
+        <a href="/chat.html" class="btn-secondary">
+          Webチャットを開く &rarr;
         </a>
       </div>
     </div>
     <div class="hero-image">
-      <img src="assets/hero.jpg" alt="Claude Remote — control Claude Code from your phone" width="540" height="380">
+      <img src="/assets/hero.jpg" alt="Claude Remote — スマートフォンからClaude Codeにアクセス" width="540" height="380">
     </div>
   </section>
 
   <!-- HOW IT WORKS -->
   <section class="section" id="how">
-    <h2 class="section-title">How It Works</h2>
-    <p class="section-subtitle">Three simple steps to control your Mac remotely</p>
+    <h2 class="section-title">使い方</h2>
+    <p class="section-subtitle">3つの簡単なステップでMacをリモート操作</p>
     <div class="steps">
       <div class="step">
         <div class="step-number">1</div>
-        <h3>Install the App</h3>
-        <p>Download Claude Remote on your Mac. The app lives in the menu bar and connects to your account.</p>
+        <h3>アプリをインストール</h3>
+        <p>MacにClaude Remoteをダウンロード。アプリはメニューバーに常駐し、アカウントに接続します。</p>
       </div>
       <div class="step">
         <div class="step-number">2</div>
-        <h3>Open the Chat</h3>
-        <p>Visit the web chat from your phone or any browser. Sign in and start typing your tasks.</p>
+        <h3>チャットを開く</h3>
+        <p>スマートフォンやブラウザからclauderemote.web.appにアクセス。ログインしてタスクを入力するだけ。</p>
       </div>
       <div class="step">
         <div class="step-number">3</div>
-        <h3>Claude Executes</h3>
-        <p>Your message instantly reaches your Mac. Claude Code runs the task and streams back the result in real time.</p>
+        <h3>Claudeが実行</h3>
+        <p>メッセージは即座にMacに届きます。Claude Codeがタスクを実行し、リアルタイムで結果を返します。</p>
       </div>
     </div>
   </section>
 
   <!-- FEATURES -->
   <section class="section" id="features">
-    <h2 class="section-title">Features</h2>
-    <p class="section-subtitle">Everything you need for remote AI-powered coding</p>
+    <h2 class="section-title">機能</h2>
+    <p class="section-subtitle">リモートAIコーディングに必要なすべて</p>
     <div class="features">
       <div class="feature">
         <div class="feature-icon">&#128241;</div>
-        <h3>Mobile Access</h3>
-        <p>Full chat with Claude Code right from your iPhone or Android. Responsive design, comfortable on any screen.</p>
+        <h3>モバイルアクセス</h3>
+        <p>iPhoneやAndroidからClaude Codeとフルチャット。レスポンシブデザインで、どの画面でも快適に操作できます。</p>
       </div>
       <div class="feature">
         <div class="feature-icon">&#9889;</div>
-        <h3>Instant Delivery</h3>
-        <p>Firebase Realtime Database — messages are delivered instantly. Response streaming in real time.</p>
+        <h3>即時配信</h3>
+        <p>Firebase Realtime Database — メッセージは即座に配信。リアルタイムでレスポンスをストリーミング。</p>
       </div>
       <div class="feature">
         <div class="feature-icon">&#128274;</div>
-        <h3>Secure by Design</h3>
-        <p>Firebase Auth, encrypted tokens stored in macOS Keychain. Only you can access your sessions.</p>
+        <h3>セキュリティ設計</h3>
+        <p>Firebase Auth、macOSキーチェーンに暗号化されたトークン。あなただけがセッションにアクセスできます。</p>
       </div>
       <div class="feature">
         <div class="feature-icon">&#128187;</div>
-        <h3>Lightweight Tray App</h3>
-        <p>Minimal footprint — just an icon in your menu bar. Auto-start, auto-update, live status indicator.</p>
+        <h3>軽量トレイアプリ</h3>
+        <p>最小限のフットプリント — メニューバーにアイコンだけ。自動起動、自動アップデート、ライブステータス表示。</p>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
   <section class="cta-section">
-    <h2>Get Started Now</h2>
-    <p>Download the app on your Mac and control Claude Code from anywhere.</p>
+    <h2>今すぐ始めよう</h2>
+    <p>Macにアプリをダウンロードして、どこからでもClaude Codeを操作しましょう。</p>
     <div class="hero-buttons" style="justify-content: center;">
-      <a href="releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
-        &#xF8FF; Download for Mac
+      <a href="/releases/Claude Remote_0.2.3_aarch64.dmg" class="btn-primary download-link">
+        &#xF8FF; Mac用ダウンロード
       </a>
     </div>
   </section>
 
   <!-- INSTALLATION -->
   <section class="section" id="install">
-    <h2 class="section-title">Installation</h2>
-    <p class="section-subtitle">macOS may show a warning for apps downloaded outside the App Store</p>
+    <h2 class="section-title">インストール</h2>
+    <p class="section-subtitle">App Store以外からダウンロードしたアプリに対してmacOSが警告を表示する場合があります</p>
     <div class="steps">
       <div class="step">
         <div class="step-number">1</div>
-        <h3>Open the DMG</h3>
-        <p>Double-click the downloaded .dmg file and drag Claude Remote to your Applications folder.</p>
+        <h3>DMGを開く</h3>
+        <p>ダウンロードした.dmgファイルをダブルクリックし、Claude Remoteをアプリケーションフォルダにドラッグします。</p>
       </div>
       <div class="step">
         <div class="step-number">2</div>
-        <h3>Allow in Settings</h3>
-        <p>Try to open the app — macOS will block it. Go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down and click <strong>Open Anyway</strong>. Enter your password.</p>
+        <h3>設定で許可</h3>
+        <p>アプリを開こうとすると、macOSがブロックします。<strong>システム設定 → プライバシーとセキュリティ</strong>に移動し、下にスクロールして<strong>このまま開く</strong>をクリック。パスワードを入力します。</p>
       </div>
       <div class="step">
         <div class="step-number">3</div>
-        <h3>Done!</h3>
-        <p>After that, the app opens normally every time. macOS remembers your choice — no extra steps needed.</p>
+        <h3>完了！</h3>
+        <p>これ以降、アプリは通常通り開きます。macOSはあなたの選択を記憶します — 追加の手順は不要です。</p>
       </div>
     </div>
   </section>
@@ -585,7 +578,7 @@
     fetch('/releases/latest.json').then(r=>r.json()).then(d=>{
       const v=d.version;
       document.querySelectorAll('.download-link').forEach(a=>{
-        a.href=`releases/Claude Remote_${v}_aarch64.dmg`;
+        a.href=`/releases/Claude Remote_${v}_aarch64.dmg`;
       });
     }).catch(()=>{});
   </script>

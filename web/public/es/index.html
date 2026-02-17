@@ -8,31 +8,33 @@
   <link rel="alternate" hreflang="en" href="/">
   <link rel="alternate" hreflang="ru" href="/ru/">
   <link rel="alternate" hreflang="es" href="/es/">
+  <link rel="alternate" hreflang="pt" href="/pt/">
+  <link rel="alternate" hreflang="fr" href="/fr/">
+  <link rel="alternate" hreflang="de" href="/de/">
+  <link rel="alternate" hreflang="ja" href="/ja/">
+  <link rel="alternate" hreflang="ko" href="/ko/">
+  <link rel="alternate" hreflang="zh" href="/zh/">
+  <link rel="alternate" hreflang="hi" href="/hi/">
+  <link rel="alternate" hreflang="tr" href="/tr/">
+  <link rel="alternate" hreflang="uk" href="/uk/">
   <link rel="canonical" href="https://clauderemote.web.app/es/">
 
   <script>
-    // If user explicitly chose another language, redirect
     (function() {
       var chosen = localStorage.getItem('lang_chosen');
-      if (chosen === 'en') {
-        window.location.replace('/');
-        return;
-      }
-      if (chosen === 'ru') {
-        window.location.replace('/ru/');
+      if (chosen && chosen !== 'es') {
+        window.location.replace(chosen === 'en' ? '/' : '/' + chosen + '/');
         return;
       }
       if (!chosen) {
-        // First visit — auto-detect
-        var lang = navigator.language || navigator.userLanguage || '';
-        if (lang.startsWith('es')) {
-          localStorage.setItem('lang_chosen', 'es');
-        } else if (lang.startsWith('ru')) {
-          localStorage.setItem('lang_chosen', 'ru');
-          window.location.replace('/ru/');
+        var lang = (navigator.language || navigator.userLanguage || '').split('-')[0];
+        var supported = ['en','ru','es','pt','fr','de','ja','ko','zh','hi','tr','uk'];
+        if (lang !== 'es') {
+          var target = supported.includes(lang) ? lang : 'en';
+          localStorage.setItem('lang_chosen', target);
+          window.location.replace(target === 'en' ? '/' : '/' + target + '/');
         } else {
-          localStorage.setItem('lang_chosen', 'en');
-          window.location.replace('/');
+          localStorage.setItem('lang_chosen', 'es');
         }
       }
     })();
@@ -119,22 +121,62 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--text); }
-    .lang-switch {
+    .lang-switcher {
+      position: relative;
+    }
+    .lang-globe {
       color: var(--text-dim) !important;
-      font-size: 13px !important;
-      padding: 5px 12px;
+      font-size: 15px !important;
+      padding: 5px 10px;
       border-radius: 8px;
       background: var(--surface);
       box-shadow:
         2px 2px 4px var(--shadow-dark),
         -2px -2px 4px var(--shadow-light);
       transition: all 0.15s;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-    .lang-switch:hover { color: var(--text) !important; }
-    .lang-switch:active {
+    .lang-globe:hover { color: var(--text) !important; }
+    .lang-globe:active, .lang-globe.open {
       box-shadow:
         inset 2px 2px 4px var(--shadow-dark),
         inset -2px -2px 4px var(--shadow-light);
+    }
+    .lang-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 6px;
+      min-width: 120px;
+      box-shadow:
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+      z-index: 200;
+    }
+    .lang-dropdown.open { display: block; }
+    .lang-dropdown a {
+      display: block;
+      padding: 7px 14px;
+      border-radius: 6px;
+      color: var(--text-dim) !important;
+      font-size: 13px !important;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .lang-dropdown a:hover {
+      background: var(--bg);
+      color: var(--text) !important;
+    }
+    .lang-dropdown a.active {
+      color: var(--accent) !important;
+      font-weight: 600;
     }
     .nav-cta {
       color: var(--accent) !important;
@@ -373,7 +415,8 @@
       .features { grid-template-columns: 1fr; }
       .section-title { font-size: 26px; }
 
-      .nav-links a:not(.nav-cta):not(.lang-switch) { display: none; }
+      .nav-links > a:not(.nav-cta):not(.lang-globe) { display: none; }
+      .lang-switcher { display: flex; }
     }
   </style>
 </head>
@@ -385,7 +428,23 @@
       <a href="#how">Como funciona</a>
       <a href="#features">Funciones</a>
       <a href="#install">Instalar</a>
-      <a href="/" class="lang-switch" onclick="localStorage.setItem('lang_chosen','en')">EN</a>
+      <div class="lang-switcher">
+        <a class="lang-globe" onclick="toggleLangMenu(event)">&#127760;</a>
+        <div class="lang-dropdown" id="langDropdown">
+          <a href="/" onclick="localStorage.setItem('lang_chosen','en')">English</a>
+          <a href="/ru/" onclick="localStorage.setItem('lang_chosen','ru')">Русский</a>
+          <a href="/es/" class="active" onclick="localStorage.setItem('lang_chosen','es')">Español</a>
+          <a href="/pt/" onclick="localStorage.setItem('lang_chosen','pt')">Português</a>
+          <a href="/fr/" onclick="localStorage.setItem('lang_chosen','fr')">Français</a>
+          <a href="/de/" onclick="localStorage.setItem('lang_chosen','de')">Deutsch</a>
+          <a href="/ja/" onclick="localStorage.setItem('lang_chosen','ja')">日本語</a>
+          <a href="/ko/" onclick="localStorage.setItem('lang_chosen','ko')">한국어</a>
+          <a href="/zh/" onclick="localStorage.setItem('lang_chosen','zh')">中文</a>
+          <a href="/hi/" onclick="localStorage.setItem('lang_chosen','hi')">हिन्दी</a>
+          <a href="/tr/" onclick="localStorage.setItem('lang_chosen','tr')">Türkçe</a>
+          <a href="/uk/" onclick="localStorage.setItem('lang_chosen','uk')">Українська</a>
+        </div>
+      </div>
       <a href="/chat.html" class="nav-cta">Abrir chat</a>
     </div>
   </nav>
@@ -498,6 +557,23 @@
     Claude Remote &copy; 2026
   </footer>
 
+  <script>
+    function toggleLangMenu(e) {
+      e.preventDefault();
+      var dd = document.getElementById('langDropdown');
+      var globe = e.currentTarget;
+      dd.classList.toggle('open');
+      globe.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('langDropdown');
+      if (dd && !e.target.closest('.lang-switcher')) {
+        dd.classList.remove('open');
+        var g = document.querySelector('.lang-globe');
+        if (g) g.classList.remove('open');
+      }
+    });
+  </script>
   <script>
     fetch('/releases/latest.json').then(r=>r.json()).then(d=>{
       const v=d.version;

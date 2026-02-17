@@ -189,7 +189,45 @@
       .header-actions-overlay.open { display: block; z-index: 9; }
       .header-actions .btn,
       .header-actions select { width: 100%; text-align: center; font-size: 16px; padding: 10px 20px; }
+      .header-actions .lang-switcher { width: 100%; }
+      .header-actions .lang-switcher .btn { width: 100%; }
+      .header-actions .lang-dropdown { position: static; width: 100%; margin-top: 6px; }
       .header { position: relative; }
+    }
+
+    /* Lang dropdown */
+    .lang-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 6px;
+      min-width: 110px;
+      box-shadow:
+        4px 4px 8px var(--shadow-dark),
+        -4px -4px 8px var(--shadow-light);
+      z-index: 200;
+    }
+    .lang-dropdown.open { display: block; }
+    .lang-dropdown a {
+      display: block;
+      padding: 7px 14px;
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .lang-dropdown a:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+    .lang-dropdown a.active {
+      color: var(--accent);
+      font-weight: 600;
     }
 
     /* Messages */
@@ -511,7 +549,23 @@
           <option value="openai">🔊 OpenAI</option>
           <option value="elevenlabs">🔊 ElevenLabs</option>
         </select>
-        <button class="btn" onclick="toggleLang()" id="langBtn">EN</button>
+        <div class="lang-switcher" style="position:relative;display:inline-block;">
+          <button class="btn" onclick="toggleLangMenu(event)" id="langGlobe" style="font-size:15px;padding:4px 8px;">&#127760;</button>
+          <div class="lang-dropdown" id="langDropdown">
+            <a href="#" onclick="pickLang('en',event)" id="langOptEn">English</a>
+            <a href="#" onclick="pickLang('ru',event)" id="langOptRu">Русский</a>
+            <a href="#" onclick="pickLang('es',event)" id="langOptEs">Español</a>
+            <a href="#" onclick="pickLang('pt',event)" id="langOptPt">Português</a>
+            <a href="#" onclick="pickLang('fr',event)" id="langOptFr">Français</a>
+            <a href="#" onclick="pickLang('de',event)" id="langOptDe">Deutsch</a>
+            <a href="#" onclick="pickLang('ja',event)" id="langOptJa">日本語</a>
+            <a href="#" onclick="pickLang('ko',event)" id="langOptKo">한국어</a>
+            <a href="#" onclick="pickLang('zh',event)" id="langOptZh">中文</a>
+            <a href="#" onclick="pickLang('hi',event)" id="langOptHi">हिन्दी</a>
+            <a href="#" onclick="pickLang('tr',event)" id="langOptTr">Türkçe</a>
+            <a href="#" onclick="pickLang('uk',event)" id="langOptUk">Українська</a>
+          </div>
+        </div>
         <button class="btn btn-accent" onclick="newChat()" data-i18n="clearChat"></button>
         <button class="btn" onclick="doLogout()" data-i18n="logout"></button>
       </div>
@@ -578,22 +632,226 @@
         processing: 'обработка',
         queue: 'очередь',
         up: 'работает'
+      },
+      es: {
+        password: 'Contraseña',
+        signIn: 'Iniciar sesión',
+        signUp: 'Registrarse',
+        noAccount: '¿No tienes cuenta? Regístrate',
+        haveAccount: '¿Ya tienes cuenta? Inicia sesión',
+        connecting: 'conectando...',
+        connected: 'conectado',
+        disconnected: 'desconectado',
+        clearChat: 'Limpiar chat',
+        logout: 'Salir',
+        messagePlaceholder: 'Mensaje para Claude Code...',
+        busy: 'ocupado',
+        offline: 'sin conexión',
+        daemonNotRunning: 'daemon no está corriendo',
+        lastSeen: 'visto',
+        processing: 'procesando',
+        queue: 'cola',
+        up: 'activo'
+      },
+      pt: {
+        password: 'Senha',
+        signIn: 'Entrar',
+        signUp: 'Cadastrar',
+        noAccount: 'Não tem conta? Cadastre-se',
+        haveAccount: 'Já tem conta? Entrar',
+        connecting: 'conectando...',
+        connected: 'conectado',
+        disconnected: 'desconectado',
+        clearChat: 'Limpar chat',
+        logout: 'Sair',
+        messagePlaceholder: 'Mensagem para Claude Code...',
+        busy: 'ocupado',
+        offline: 'offline',
+        daemonNotRunning: 'daemon não está rodando',
+        lastSeen: 'visto',
+        processing: 'processando',
+        queue: 'fila',
+        up: 'ativo'
+      },
+      fr: {
+        password: 'Mot de passe',
+        signIn: 'Se connecter',
+        signUp: "S'inscrire",
+        noAccount: "Pas de compte ? S'inscrire",
+        haveAccount: 'Déjà un compte ? Se connecter',
+        connecting: 'connexion...',
+        connected: 'connecté',
+        disconnected: 'déconnecté',
+        clearChat: 'Effacer le chat',
+        logout: 'Déconnexion',
+        messagePlaceholder: 'Message pour Claude Code...',
+        busy: 'occupé',
+        offline: 'hors ligne',
+        daemonNotRunning: 'daemon non lancé',
+        lastSeen: 'vu',
+        processing: 'traitement',
+        queue: 'file',
+        up: 'actif'
+      },
+      de: {
+        password: 'Passwort',
+        signIn: 'Anmelden',
+        signUp: 'Registrieren',
+        noAccount: 'Kein Konto? Registrieren',
+        haveAccount: 'Bereits ein Konto? Anmelden',
+        connecting: 'verbinde...',
+        connected: 'verbunden',
+        disconnected: 'getrennt',
+        clearChat: 'Chat löschen',
+        logout: 'Abmelden',
+        messagePlaceholder: 'Nachricht an Claude Code...',
+        busy: 'beschäftigt',
+        offline: 'offline',
+        daemonNotRunning: 'Daemon läuft nicht',
+        lastSeen: 'zuletzt',
+        processing: 'verarbeite',
+        queue: 'Warteschlange',
+        up: 'aktiv'
+      },
+      ja: {
+        password: 'パスワード',
+        signIn: 'ログイン',
+        signUp: '新規登録',
+        noAccount: 'アカウントがない？登録する',
+        haveAccount: 'アカウントをお持ち？ログイン',
+        connecting: '接続中...',
+        connected: '接続済み',
+        disconnected: '切断',
+        clearChat: 'チャットをクリア',
+        logout: 'ログアウト',
+        messagePlaceholder: 'Claude Codeへのメッセージ...',
+        busy: '処理中',
+        offline: 'オフライン',
+        daemonNotRunning: 'デーモン未起動',
+        lastSeen: '最終確認',
+        processing: '処理中',
+        queue: 'キュー',
+        up: '稼働中'
+      },
+      ko: {
+        password: '비밀번호',
+        signIn: '로그인',
+        signUp: '회원가입',
+        noAccount: '계정이 없으신가요? 가입하기',
+        haveAccount: '이미 계정이 있으신가요? 로그인',
+        connecting: '연결 중...',
+        connected: '연결됨',
+        disconnected: '연결 끊김',
+        clearChat: '채팅 지우기',
+        logout: '로그아웃',
+        messagePlaceholder: 'Claude Code에 메시지...',
+        busy: '처리 중',
+        offline: '오프라인',
+        daemonNotRunning: '데몬 미실행',
+        lastSeen: '마지막 확인',
+        processing: '처리 중',
+        queue: '대기열',
+        up: '실행 중'
+      },
+      zh: {
+        password: '密码',
+        signIn: '登录',
+        signUp: '注册',
+        noAccount: '没有账号？注册',
+        haveAccount: '已有账号？登录',
+        connecting: '连接中...',
+        connected: '已连接',
+        disconnected: '已断开',
+        clearChat: '清除聊天',
+        logout: '退出',
+        messagePlaceholder: '发送消息给 Claude Code...',
+        busy: '忙碌',
+        offline: '离线',
+        daemonNotRunning: '守护进程未运行',
+        lastSeen: '最后在线',
+        processing: '处理中',
+        queue: '队列',
+        up: '运行中'
+      },
+      hi: {
+        password: 'पासवर्ड',
+        signIn: 'साइन इन',
+        signUp: 'साइन अप',
+        noAccount: 'खाता नहीं है? रजिस्टर करें',
+        haveAccount: 'खाता है? साइन इन करें',
+        connecting: 'कनेक्ट हो रहा है...',
+        connected: 'कनेक्टेड',
+        disconnected: 'डिस्कनेक्टेड',
+        clearChat: 'चैट साफ़ करें',
+        logout: 'लॉगआउट',
+        messagePlaceholder: 'Claude Code को संदेश...',
+        busy: 'व्यस्त',
+        offline: 'ऑफ़लाइन',
+        daemonNotRunning: 'डेमन नहीं चल रहा',
+        lastSeen: 'अंतिम बार',
+        processing: 'प्रोसेसिंग',
+        queue: 'कतार',
+        up: 'चालू'
+      },
+      tr: {
+        password: 'Şifre',
+        signIn: 'Giriş Yap',
+        signUp: 'Kayıt Ol',
+        noAccount: 'Hesabın yok mu? Kayıt ol',
+        haveAccount: 'Hesabın var mı? Giriş yap',
+        connecting: 'bağlanıyor...',
+        connected: 'bağlandı',
+        disconnected: 'bağlantı kesildi',
+        clearChat: 'Sohbeti temizle',
+        logout: 'Çıkış',
+        messagePlaceholder: 'Claude Code için mesaj...',
+        busy: 'meşgul',
+        offline: 'çevrimdışı',
+        daemonNotRunning: 'daemon çalışmıyor',
+        lastSeen: 'son görülme',
+        processing: 'işleniyor',
+        queue: 'kuyruk',
+        up: 'aktif'
+      },
+      uk: {
+        password: 'Пароль',
+        signIn: 'Увійти',
+        signUp: 'Реєстрація',
+        noAccount: 'Немає акаунту? Зареєструватися',
+        haveAccount: 'Є акаунт? Увійти',
+        connecting: "з'єднання...",
+        connected: "з'єднано",
+        disconnected: "від'єднано",
+        clearChat: 'Очистити чат',
+        logout: 'Вихід',
+        messagePlaceholder: 'Повідомлення для Claude Code...',
+        busy: 'зайнятий',
+        offline: 'офлайн',
+        daemonNotRunning: 'демон не запущено',
+        lastSeen: 'останній раз',
+        processing: 'обробка',
+        queue: 'черга',
+        up: 'працює'
       }
     };
 
     let currentLang = 'en';
 
+    const SUPPORTED_LANGS = ['en','ru','es','pt','fr','de','ja','ko','zh','hi','tr','uk'];
+
     function detectLang() {
       const stored = localStorage.getItem('lang_chosen');
-      if (stored === 'ru' || stored === 'en') return stored;
+      if (SUPPORTED_LANGS.includes(stored)) return stored;
       const nav = (navigator.language || '').toLowerCase();
-      return nav.startsWith('ru') ? 'ru' : 'en';
+      const prefix = nav.split('-')[0];
+      if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+      return 'en';
     }
 
     function setLang(lang) {
       currentLang = lang;
       localStorage.setItem('lang_chosen', lang);
-      document.getElementById('langBtn').textContent = lang === 'en' ? 'RU' : 'EN';
+      if (typeof updateLangHighlight === 'function') updateLangHighlight();
       document.querySelectorAll('[data-i18n]').forEach(el => {
         el.textContent = i18n[lang][el.dataset.i18n] || '';
       });
@@ -607,9 +865,27 @@
       document.getElementById('menuOverlay').classList.toggle('open');
     }
 
-    function toggleLang() {
-      setLang(currentLang === 'en' ? 'ru' : 'en');
+    function toggleLangMenu(e) {
+      e.stopPropagation();
+      document.getElementById('langDropdown').classList.toggle('open');
     }
+    function pickLang(lang, e) {
+      e.preventDefault();
+      setLang(lang);
+      document.getElementById('langDropdown').classList.remove('open');
+      updateLangHighlight();
+    }
+    function updateLangHighlight() {
+      SUPPORTED_LANGS.forEach(function(lang) {
+        var el = document.getElementById('langOpt' + lang.charAt(0).toUpperCase() + lang.slice(1));
+        if (el) el.className = currentLang === lang ? 'active' : '';
+      });
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.lang-switcher')) {
+        document.getElementById('langDropdown').classList.remove('open');
+      }
+    });
 
     currentLang = detectLang();
 
@@ -737,7 +1013,8 @@
 
     function fallbackBrowserTTS(clean, btn) {
       const utter = new SpeechSynthesisUtterance(clean);
-      utter.lang = currentLang === 'ru' ? 'ru-RU' : 'en-US';
+      const langMap = {en:'en-US',ru:'ru-RU',es:'es-ES',pt:'pt-BR',fr:'fr-FR',de:'de-DE',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',hi:'hi-IN',tr:'tr-TR',uk:'uk-UA'};
+      utter.lang = langMap[currentLang] || 'en-US';
       btn.classList.add('speaking');
       currentTTSBtn = btn;
       utter.onend = () => { btn.classList.remove('speaking'); currentTTSBtn = null; };
@@ -941,6 +1218,7 @@
     });
 
     setLang(currentLang);
+    updateLangHighlight();
 
     // Init TTS provider selector
     const ttsSelect = document.getElementById('ttsSelect');
