@@ -9,6 +9,45 @@ use tauri::{
 use tokio::io::AsyncReadExt;
 use tokio::sync::Mutex;
 
+// === File Logging ===
+
+fn log_msg(msg: &str) {
+    use std::io::Write;
+    let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
+    let line = format!("[{}] {}\n", timestamp, msg);
+
+    // Also print to stdout for dev mode
+    print!("{}", line);
+
+    if let Some(home) = dirs::home_dir() {
+        let log_path = home.join("Library/Logs/claude-remote.log");
+        if let Ok(mut file) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&log_path)
+        {
+            let _ = file.write_all(line.as_bytes());
+
+            // Truncate if > 5MB: keep last 2MB
+            if let Ok(meta) = file.metadata() {
+                if meta.len() > 5_000_000 {
+                    drop(file);
+                    if let Ok(content) = std::fs::read(&log_path) {
+                        let keep_from = content.len().saturating_sub(2_000_000);
+                        // Find next newline after keep_from
+                        let start = content[keep_from..]
+                            .iter()
+                            .position(|&b| b == b'\n')
+                            .map(|p| keep_from + p + 1)
+                            .unwrap_or(keep_from);
+                        let _ = std::fs::write(&log_path, &content[start..]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 // === macOS App Nap Prevention ===
 
 #[cfg(target_os = "macos")]
@@ -38,7 +77,7 @@ fn disable_app_nap() {
             reason: reason
         ];
 
-        println!("[macos] App Nap disabled — daemon will not be throttled");
+        log_msg("[macos] App Nap disabled — daemon will not be throttled");
     }
 }
 
@@ -283,7 +322,7 @@ async fn restore_session(
         &refreshed.refresh_token,
     ).await;
 
-    println!("[auth] Session restored for {}", session.email);
+    log_msg(&format!("[auth] Session restored for {}", session.email));
 
     Ok(SessionInfo {
         email: session.email,
@@ -510,7 +549,7 @@ async fn send_heartbeat(client: &reqwest::Client, state: &Arc<AppState>) {
     match client.put(&url).json(&payload).send().await {
         Ok(resp) => {
             if resp.status().as_u16() == 401 {
-                println!("[heartbeat] Token expired, refreshing...");
+                log_msg("[heartbeat] Token expired, refreshing...");
                 if let Some(ref_tok) = state.refresh_token.lock().await.clone() {
                     if let Ok(refreshed) = refresh_auth_token(&config.firebase_api_key, &ref_tok).await {
                         *state.auth_token.lock().await = Some(refreshed.id_token.clone());
@@ -522,16 +561,16 @@ async fn send_heartbeat(client: &reqwest::Client, state: &Arc<AppState>) {
                                 refresh_token: refreshed.refresh_token,
                             });
                         }
-                        println!("[heartbeat] Token refreshed, will retry next cycle");
+                        log_msg("[heartbeat] Token refreshed, will retry next cycle");
                     } else {
-                        println!("[heartbeat] Failed to refresh token");
+                        log_msg("[heartbeat] Failed to refresh token");
                     }
                 }
             } else {
-                println!("[heartbeat] Sent: HTTP {}", resp.status());
+                log_msg(&format!("[heartbeat] Sent: HTTP {}", resp.status()));
             }
         }
-        Err(e) => println!("[heartbeat] Error: {}", e),
+        Err(e) => log_msg(&format!("[heartbeat] Error: {}", e)),
     }
 }
 
@@ -551,9 +590,9 @@ async fn force_token_refresh(state: &Arc<AppState>) {
                         refresh_token: refreshed.refresh_token,
                     });
                 }
-                println!("[wake] Token refreshed successfully");
+                log_msg("[wake] Token refreshed successfully");
             }
-            Err(e) => println!("[wake] Token refresh failed: {}", e),
+            Err(e) => log_msg(&format!("[wake] Token refresh failed: {}", e)),
         }
     }
 }
@@ -567,7 +606,7 @@ async fn heartbeat_loop(state: Arc<AppState>) {
         // Detect wake from sleep: if >90s passed instead of expected 30s
         let elapsed = last_beat.elapsed();
         if elapsed.as_secs() > 90 {
-            println!("[heartbeat] Detected wake from sleep ({}s gap), refreshing token", elapsed.as_secs());
+            log_msg(&format!("[heartbeat] Detected wake from sleep ({}s gap), refreshing token", elapsed.as_secs()));
             force_token_refresh(&state).await;
         }
         last_beat = std::time::Instant::now();
@@ -587,7 +626,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
         // Detect wake from sleep: if >10s passed instead of expected 2s
         let elapsed = last_poll.elapsed();
         if elapsed.as_secs() > 10 {
-            println!("[daemon] Detected wake from sleep ({}s gap), refreshing token and HTTP client", elapsed.as_secs());
+            log_msg(&format!("[daemon] Detected wake from sleep ({}s gap), refreshing token and HTTP client", elapsed.as_secs()));
             force_token_refresh(&state).await;
             // Create fresh HTTP client to avoid stale pooled connections
             client = reqwest::Client::new();
@@ -617,7 +656,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
         let resp = match client.get(&url).send().await {
             Ok(r) => r,
             Err(e) => {
-                println!("[daemon] Poll error: {}", e);
+                log_msg(&format!("[daemon] Poll error: {}", e));
                 continue;
             }
         };
@@ -636,11 +675,11 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                                 refresh_token: refreshed.refresh_token,
                             });
                         }
-                        println!("[daemon] Token refreshed");
+                        log_msg("[daemon] Token refreshed");
                     }
                 }
             } else {
-                println!("[daemon] Poll HTTP {}", resp.status());
+                log_msg(&format!("[daemon] Poll HTTP {}", resp.status()));
             }
             continue;
         }
@@ -684,7 +723,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                                     session_id.clone(),
                                     (key_bytes, browser_pub.to_string()),
                                 );
-                                println!("[crypto] Derived AES key for session {}", session_id);
+                                log_msg(&format!("[crypto] Derived AES key for session {}", session_id));
 
                                 // Always write our new public key (browser deleted the old one)
                                 let key_url = format!(
@@ -696,10 +735,10 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                                     .json(&serde_json::json!(our_pub_b64))
                                     .send()
                                     .await;
-                                println!("[crypto] Published daemon public key for session {}", session_id);
+                                log_msg(&format!("[crypto] Published daemon public key for session {}", session_id));
                             }
                             Err(e) => {
-                                println!("[crypto] Key derivation failed for {}: {}", session_id, e);
+                                log_msg(&format!("[crypto] Key derivation failed for {}: {}", session_id, e));
                             }
                         }
                     }
@@ -732,7 +771,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                 // that got stuck (e.g. token expired during Claude execution)
                 let is_busy = *state.busy.lock().await;
                 if status == "processing" && !is_busy {
-                    println!("[daemon] Retrying stuck message: {}", msg_id);
+                    log_msg(&format!("[daemon] Retrying stuck message: {}", msg_id));
                 } else if status != "pending" {
                     continue;
                 }
@@ -758,12 +797,12 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                         match decrypt_message(cipher, raw_text, iv) {
                             Ok(decrypted) => decrypted,
                             Err(e) => {
-                                println!("[crypto] Decrypt failed for {}: {}", msg_id, e);
+                                log_msg(&format!("[crypto] Decrypt failed for {}: {}", msg_id, e));
                                 continue;
                             }
                         }
                     } else {
-                        println!("[crypto] No cipher for encrypted message in session {}", session_id);
+                        log_msg(&format!("[crypto] No cipher for encrypted message in session {}", session_id));
                         continue;
                     }
                 } else {
@@ -771,7 +810,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                 };
 
                 let preview: String = text.chars().take(50).collect();
-                println!("[daemon] Processing: \"{}\"", preview);
+                log_msg(&format!("[daemon] Processing: \"{}\"", preview));
 
                 *state.busy.lock().await = true;
 
@@ -817,10 +856,10 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                                                 refresh_token: refreshed.refresh_token,
                                             });
                                         }
-                                        println!("[daemon] Token refreshed before writing response");
+                                        log_msg("[daemon] Token refreshed before writing response");
                                         refreshed.id_token
                                     } else {
-                                        println!("[daemon] Failed to refresh token");
+                                        log_msg("[daemon] Failed to refresh token");
                                         t
                                     }
                                 } else { t }
@@ -828,7 +867,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                         } else { t }
                     }
                     None => {
-                        println!("[daemon] No token available for response");
+                        log_msg("[daemon] No token available for response");
                         *state.busy.lock().await = false;
                         continue;
                     }
@@ -853,7 +892,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                             })
                         }
                         Err(e) => {
-                            println!("[crypto] Encrypt failed, sending plaintext: {}", e);
+                            log_msg(&format!("[crypto] Encrypt failed, sending plaintext: {}", e));
                             serde_json::json!({
                                 "role": "assistant",
                                 "text": response_text,
@@ -888,7 +927,7 @@ async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
                     .send()
                     .await;
 
-                println!("[daemon] Response sent");
+                log_msg("[daemon] Response sent");
                 *state.busy.lock().await = false;
             }
         }
@@ -945,14 +984,14 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
     match update {
         Some(u) => {
             let version = u.version.clone();
-            println!("[updater] Update available: v{}", version);
+            log_msg(&format!("[updater] Update available: v{}", version));
 
             // Download and install synchronously (not in background)
             u.download_and_install(|_, _| {}, || {})
                 .await
                 .map_err(|e| format!("Install error: {}", e))?;
 
-            println!("[updater] Update installed, restarting...");
+            log_msg("[updater] Update installed, restarting...");
             app.restart();
             Ok(version)
         }
@@ -972,30 +1011,30 @@ async fn background_update_loop(app: tauri::AppHandle, state: Arc<AppState>) {
         let is_busy = *state.busy.lock().await;
 
         if !is_running && !is_busy {
-            println!("[updater] Background check...");
+            log_msg("[updater] Background check...");
             match app.updater() {
                 Ok(updater) => {
                     match updater.check().await {
                         Ok(Some(update)) => {
                             let version = update.version.clone();
-                            println!("[updater] Update v{} found, daemon stopped — installing", version);
+                            log_msg(&format!("[updater] Update v{} found, daemon stopped — installing", version));
 
                             match update.download_and_install(|_, _| {}, || {}).await {
                                 Ok(_) => {
-                                    println!("[updater] v{} installed, restarting...", version);
+                                    log_msg(&format!("[updater] v{} installed, restarting...", version));
                                     app.restart();
                                 }
-                                Err(e) => println!("[updater] Install error: {}", e),
+                                Err(e) => log_msg(&format!("[updater] Install error: {}", e)),
                             }
                         }
-                        Ok(None) => println!("[updater] Up to date"),
-                        Err(e) => println!("[updater] Check error: {}", e),
+                        Ok(None) => log_msg("[updater] Up to date"),
+                        Err(e) => log_msg(&format!("[updater] Check error: {}", e)),
                     }
                 }
-                Err(e) => println!("[updater] Init error: {}", e),
+                Err(e) => log_msg(&format!("[updater] Init error: {}", e)),
             }
         } else {
-            println!("[updater] Daemon running, skipping update check");
+            log_msg("[updater] Daemon running, skipping update check");
         }
 
         // Check every hour
@@ -1092,14 +1131,14 @@ pub fn run() {
                         ).await;
                         *state_clone.running.lock().await = true;
                     });
-                    println!("[autostart] Session restored for {}, daemon started", session.email);
+                    log_msg(&format!("[autostart] Session restored for {}, daemon started", session.email));
                 }
                 Err(e) => {
-                    println!("[autostart] Failed to restore session: {}", e);
+                    log_msg(&format!("[autostart] Failed to restore session: {}", e));
                 }
             }
         } else {
-            println!("[autostart] No saved session found");
+            log_msg("[autostart] No saved session found");
         }
     }
 
