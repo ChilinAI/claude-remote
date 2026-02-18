@@ -541,7 +541,7 @@
   </div>
 
   <!-- Chat screen -->
-  <div id="chatScreen" style="display:none; height:100dvh; flex-direction:column; position:fixed; top:0; left:0; right:0; bottom:0;">
+  <div id="chatScreen" style="display:none; height:100dvh; flex-direction:column;">
     <div class="header">
       <div style="display:flex;align-items:center;gap:10px;">
         <a href="/"><h1>Claude Remote</h1></a>
@@ -1416,25 +1416,6 @@
     // Init TTS provider highlight
     updateTTSHighlight();
 
-    // === MOBILE KEYBOARD FIX ===
-    // On iOS/Android, when the virtual keyboard appears, the input gets hidden.
-    // Use visualViewport API to adjust the chat screen height dynamically.
-    if (window.visualViewport) {
-      function adjustForKeyboard() {
-        const chat = document.getElementById('chatScreen');
-        if (chat && chat.style.display !== 'none') {
-          const vvh = window.visualViewport.height;
-          const vvTop = window.visualViewport.offsetTop;
-          chat.style.height = vvh + 'px';
-          chat.style.transform = `translateY(${vvTop}px)`;
-          // Scroll messages to bottom when keyboard opens
-          const container = document.getElementById('messagesContainer');
-          if (container) container.scrollTop = container.scrollHeight;
-        }
-      }
-      window.visualViewport.addEventListener('resize', adjustForKeyboard);
-      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
-    }
   </script>
 </body>
 </html>
