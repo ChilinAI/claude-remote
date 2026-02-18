@@ -362,6 +362,20 @@ async fn register(
     if resp.status().is_success() {
         let auth: AuthResponse = resp.json().await.map_err(|e| e.to_string())?;
         save_auth_state(&state, &email, &auth.local_id, &auth.id_token, &auth.refresh_token).await;
+
+        // Increment user counter in RTDB
+        let config = state.config.lock().await.clone();
+        let counter_url = format!(
+            "{}/stats/userCount.json?auth={}",
+            config.firebase_db_url, auth.id_token
+        );
+        if let Ok(r) = client.get(&counter_url).send().await {
+            if let Ok(count) = r.json::<serde_json::Value>().await {
+                let new_count = count.as_u64().unwrap_or(0) + 1;
+                let _ = client.put(&counter_url).json(&serde_json::json!(new_count)).send().await;
+            }
+        }
+
         Ok(auth.local_id)
     } else {
         let err: AuthError = resp.json().await.map_err(|e| e.to_string())?;
