@@ -541,7 +541,7 @@
   </div>
 
   <!-- Chat screen -->
-  <div id="chatScreen" style="display:none; height:100dvh; flex-direction:column;">
+  <div id="chatScreen" style="display:none; height:100dvh; flex-direction:column; position:fixed; top:0; left:0; right:0; bottom:0;">
     <div class="header">
       <div style="display:flex;align-items:center;gap:10px;">
         <a href="/"><h1>Claude Remote</h1></a>
@@ -627,7 +627,6 @@
         processing: 'processing',
         queue: 'queue',
         up: 'up',
-        encryptedHint: 'Press "Clear Chat" to start a new encrypted session'
       },
       ru: {
         password: 'Пароль',
@@ -648,7 +647,6 @@
         processing: 'обработка',
         queue: 'очередь',
         up: 'работает',
-        encryptedHint: 'Нажмите «Очистить чат» для новой зашифрованной сессии'
       },
       es: {
         password: 'Contraseña',
@@ -669,7 +667,6 @@
         processing: 'procesando',
         queue: 'cola',
         up: 'activo',
-        encryptedHint: 'Pulse "Limpiar chat" para iniciar una nueva sesión cifrada'
       },
       pt: {
         password: 'Senha',
@@ -690,7 +687,6 @@
         processing: 'processando',
         queue: 'fila',
         up: 'ativo',
-        encryptedHint: 'Pressione "Limpar chat" para iniciar uma nova sessão criptografada'
       },
       fr: {
         password: 'Mot de passe',
@@ -711,7 +707,6 @@
         processing: 'traitement',
         queue: 'file',
         up: 'actif',
-        encryptedHint: 'Appuyez sur « Effacer le chat » pour démarrer une nouvelle session chiffrée'
       },
       de: {
         password: 'Passwort',
@@ -732,7 +727,6 @@
         processing: 'verarbeite',
         queue: 'Warteschlange',
         up: 'aktiv',
-        encryptedHint: '„Chat löschen" drücken, um eine neue verschlüsselte Sitzung zu starten'
       },
       ja: {
         password: 'パスワード',
@@ -753,7 +747,6 @@
         processing: '処理中',
         queue: 'キュー',
         up: '稼働中',
-        encryptedHint: '「チャットをクリア」を押して新しい暗号化セッションを開始'
       },
       ko: {
         password: '비밀번호',
@@ -774,7 +767,6 @@
         processing: '처리 중',
         queue: '대기열',
         up: '실행 중',
-        encryptedHint: '"채팅 지우기"를 눌러 새 암호화 세션을 시작하세요'
       },
       zh: {
         password: '密码',
@@ -795,7 +787,6 @@
         processing: '处理中',
         queue: '队列',
         up: '运行中',
-        encryptedHint: '按"清除聊天"开始新的加密会话'
       },
       hi: {
         password: 'पासवर्ड',
@@ -816,7 +807,6 @@
         processing: 'प्रोसेसिंग',
         queue: 'कतार',
         up: 'चालू',
-        encryptedHint: 'नई एन्क्रिप्टेड सत्र शुरू करने के लिए "चैट साफ़ करें" दबाएँ'
       },
       tr: {
         password: 'Şifre',
@@ -837,7 +827,6 @@
         processing: 'işleniyor',
         queue: 'kuyruk',
         up: 'aktif',
-        encryptedHint: 'Yeni şifreli oturum başlatmak için "Sohbeti temizle"ye basın'
       },
       uk: {
         password: 'Пароль',
@@ -858,7 +847,6 @@
         processing: 'обробка',
         queue: 'черга',
         up: 'працює',
-        encryptedHint: 'Натисніть «Очистити чат» для нового зашифрованого сеансу'
       }
     };
 
@@ -1154,14 +1142,6 @@
       }
     }
 
-    function showEncryptedHint() {
-      const input = document.getElementById('messageInput');
-      if (input) {
-        const t = i18n[currentLang] || i18n.en;
-        input.placeholder = t.encryptedHint;
-      }
-    }
-
     async function setupEncryption() {
       encryptionReady = false;
       sharedAESKey = null;
@@ -1289,7 +1269,6 @@
         div.id = `msg-${id}`;
         if (undecryptable) {
           div.classList.add('encrypted-blur');
-          showEncryptedHint();
         }
         if (msg.status === 'processing') div.classList.add('processing');
         if (msg.status === 'error') div.classList.add('error');
@@ -1333,6 +1312,24 @@
 
       input.value = '';
       autoResize(input);
+
+      // If encryption not ready (e.g. old session with undecryptable messages),
+      // auto-create a new session without clearing chat UI
+      if (!encryptionReady) {
+        if (messagesRef) messagesRef.off();
+        createNewSession();
+        await setupEncryption();
+        listenToMessages();
+        // Restore normal placeholder
+        const t = i18n[currentLang] || i18n.en;
+        input.placeholder = t.messagePlaceholder;
+        // Wait briefly for encryption handshake
+        let waited = 0;
+        while (!encryptionReady && waited < 5000) {
+          await new Promise(r => setTimeout(r, 200));
+          waited += 200;
+        }
+      }
 
       const msgRef = rtdb.ref(`sessions/${currentUser.uid}/${currentSessionId}/messages`);
 
@@ -1418,6 +1415,26 @@
 
     // Init TTS provider highlight
     updateTTSHighlight();
+
+    // === MOBILE KEYBOARD FIX ===
+    // On iOS/Android, when the virtual keyboard appears, the input gets hidden.
+    // Use visualViewport API to adjust the chat screen height dynamically.
+    if (window.visualViewport) {
+      function adjustForKeyboard() {
+        const chat = document.getElementById('chatScreen');
+        if (chat && chat.style.display !== 'none') {
+          const vvh = window.visualViewport.height;
+          const vvTop = window.visualViewport.offsetTop;
+          chat.style.height = vvh + 'px';
+          chat.style.transform = `translateY(${vvTop}px)`;
+          // Scroll messages to bottom when keyboard opens
+          const container = document.getElementById('messagesContainer');
+          if (container) container.scrollTop = container.scrollHeight;
+        }
+      }
+      window.visualViewport.addEventListener('resize', adjustForKeyboard);
+      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+    }
   </script>
 </body>
 </html>

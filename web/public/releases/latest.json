@@ -1,10 +1,8 @@
 {
-  "version": "0.3.2",
-  "notes": "Background auto-updates, feature card layout fix",
-  "pub_date": "2026-02-17T09:39:53Z",
+  "version": "0.3.4",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNW5rcGVhTFo4aGRmNzh3RXA4SktJU0FRRkF3ZWFnQ0hMUTlmeUFiR0laSmtlRUxFemFON0JhK0tMazZFL2kyV2FpcFFqdml3TWZLM1FxVktKajI4N3c0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxMzIxMTg0CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClkwQXhUZ1YwMWZOUlNuR2FDcjdtZHBXU1R6NjQyWG8rYkZVOW84YlB4RGpjM21pVVF1YU1rN2ZJSjBRTkVVZ0orVC9TUVZyWnNtWkVXNzVRR1pqS0NBPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNWdUWlRsT1cvdmM3VUdIRkFRTkdCaFFQU01NajIySUxsZUVyRWlWVElWZUZrdmFnb0FiVUFOTG9XSy9MSnZpL3dqSll3RC96REFSMkNoTnYya3Rna0FrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDAwODY5CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6ClBQOVJWRnVON1E2MGxPZnZiNzNLR1hlMzNPZWZycVZMbnRWa2xzY29vMWNVeE9RWjlIbDA2Y01KSlZCSjZUYmEwRW9NY3BpV212VHQxY2xocW41OEJRPT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }

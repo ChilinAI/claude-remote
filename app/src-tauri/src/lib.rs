@@ -9,6 +9,44 @@ use tauri::{
 use tokio::io::AsyncReadExt;
 use tokio::sync::Mutex;
 
+// === macOS App Nap Prevention ===
+
+#[cfg(target_os = "macos")]
+fn disable_app_nap() {
+    use objc::runtime::{Class, Object};
+    use objc::{msg_send, sel, sel_impl};
+    unsafe {
+        let cls = Class::get("NSProcessInfo").expect("NSProcessInfo class not found");
+        let process_info: *mut Object = msg_send![cls, processInfo];
+
+        // Create NSString for reason
+        let reason_str = "Claude Remote daemon must run continuously";
+        let ns_string_cls = Class::get("NSString").expect("NSString class not found");
+        let ns_alloc: *mut Object = msg_send![ns_string_cls, alloc];
+        let reason: *mut Object = msg_send![ns_alloc,
+            initWithBytes: reason_str.as_ptr()
+            length: reason_str.len()
+            encoding: 4u64  // NSUTF8StringEncoding
+        ];
+
+        // NSActivityIdleSystemSleepDisabled (0x00100000) |
+        // NSActivityUserInitiatedAllowingIdleSystemSleep (0x00000001)
+        // This prevents App Nap and timer throttling
+        let options: u64 = 0x00100000 | 0x00000001;
+        let _activity: *mut Object = msg_send![process_info,
+            beginActivityWithOptions: options
+            reason: reason
+        ];
+
+        println!("[macos] App Nap disabled — daemon will not be throttled");
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn disable_app_nap() {
+    // No-op on other platforms
+}
+
 use aes_gcm::{
     aead::{Aead, KeyInit},
     Aes256Gcm, Nonce,
@@ -456,26 +494,91 @@ async fn send_heartbeat(client: &reqwest::Client, state: &Arc<AppState>) {
     });
 
     match client.put(&url).json(&payload).send().await {
-        Ok(resp) => println!("[heartbeat] Sent: HTTP {}", resp.status()),
+        Ok(resp) => {
+            if resp.status().as_u16() == 401 {
+                println!("[heartbeat] Token expired, refreshing...");
+                if let Some(ref_tok) = state.refresh_token.lock().await.clone() {
+                    if let Ok(refreshed) = refresh_auth_token(&config.firebase_api_key, &ref_tok).await {
+                        *state.auth_token.lock().await = Some(refreshed.id_token.clone());
+                        *state.refresh_token.lock().await = Some(refreshed.refresh_token.clone());
+                        if let Some(email) = state.email.lock().await.clone() {
+                            save_session_to_disk(&SavedSession {
+                                email,
+                                uid: uid.clone(),
+                                refresh_token: refreshed.refresh_token,
+                            });
+                        }
+                        println!("[heartbeat] Token refreshed, will retry next cycle");
+                    } else {
+                        println!("[heartbeat] Failed to refresh token");
+                    }
+                }
+            } else {
+                println!("[heartbeat] Sent: HTTP {}", resp.status());
+            }
+        }
         Err(e) => println!("[heartbeat] Error: {}", e),
+    }
+}
+
+/// Force token refresh (used after wake from sleep)
+async fn force_token_refresh(state: &Arc<AppState>) {
+    let config = state.config.lock().await.clone();
+    if let Some(ref_tok) = state.refresh_token.lock().await.clone() {
+        match refresh_auth_token(&config.firebase_api_key, &ref_tok).await {
+            Ok(refreshed) => {
+                *state.auth_token.lock().await = Some(refreshed.id_token.clone());
+                *state.refresh_token.lock().await = Some(refreshed.refresh_token.clone());
+                if let Some(email) = state.email.lock().await.clone() {
+                    let uid = state.uid.lock().await.clone().unwrap_or_default();
+                    save_session_to_disk(&SavedSession {
+                        email,
+                        uid,
+                        refresh_token: refreshed.refresh_token,
+                    });
+                }
+                println!("[wake] Token refreshed successfully");
+            }
+            Err(e) => println!("[wake] Token refresh failed: {}", e),
+        }
     }
 }
 
 async fn heartbeat_loop(state: Arc<AppState>) {
     let client = reqwest::Client::new();
+    let mut last_beat = std::time::Instant::now();
     // First heartbeat after 2 sec
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
     loop {
+        // Detect wake from sleep: if >90s passed instead of expected 30s
+        let elapsed = last_beat.elapsed();
+        if elapsed.as_secs() > 90 {
+            println!("[heartbeat] Detected wake from sleep ({}s gap), refreshing token", elapsed.as_secs());
+            force_token_refresh(&state).await;
+        }
+        last_beat = std::time::Instant::now();
+
         send_heartbeat(&client, &state).await;
         tokio::time::sleep(tokio::time::Duration::from_secs(30)).await;
     }
 }
 
 async fn poll_messages(state: Arc<AppState>, crypto: Arc<CryptoState>) {
-    let client = reqwest::Client::new();
+    let mut client = reqwest::Client::new();
+    let mut last_poll = std::time::Instant::now();
 
     loop {
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+
+        // Detect wake from sleep: if >10s passed instead of expected 2s
+        let elapsed = last_poll.elapsed();
+        if elapsed.as_secs() > 10 {
+            println!("[daemon] Detected wake from sleep ({}s gap), refreshing token and HTTP client", elapsed.as_secs());
+            force_token_refresh(&state).await;
+            // Create fresh HTTP client to avoid stale pooled connections
+            client = reqwest::Client::new();
+        }
+        last_poll = std::time::Instant::now();
 
         let is_running = *state.running.lock().await;
         if !is_running {
@@ -993,6 +1096,13 @@ pub fn run() {
     let state_for_updater = state.clone();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            // Second instance launched — show the window of the first one
+            if let Some(win) = app.get_webview_window("main") {
+                let _ = win.show();
+                let _ = win.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(state)
@@ -1057,6 +1167,9 @@ pub fn run() {
                     let _ = win_clone.hide();
                 }
             });
+
+            // Prevent macOS App Nap from throttling daemon timers
+            disable_app_nap();
 
             // Start polling daemon and heartbeat in background
             tauri::async_runtime::spawn(poll_messages(state_for_daemon, crypto_for_daemon));
