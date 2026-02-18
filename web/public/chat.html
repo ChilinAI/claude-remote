@@ -1193,6 +1193,8 @@
       try {
         if (isRegisterMode) {
           await auth.createUserWithEmailAndPassword(email, password);
+          // Increment public user counter
+          rtdb.ref('stats/userCount').transaction(c => (c || 0) + 1);
         } else {
           await auth.signInWithEmailAndPassword(email, password);
         }

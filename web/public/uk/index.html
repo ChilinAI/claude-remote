@@ -552,6 +552,9 @@
   </section>
 
   <footer>
+    <div id="userCounter" style="margin-bottom:12px;font-size:15px;color:var(--text-dim);opacity:0;transition:opacity 0.5s;">
+      <span style="color:var(--accent);font-weight:700;" id="userCountNum">—</span> зареєстрованих користувачів
+    </div>
     Claude Remote &copy; 2026
   </footer>
 
@@ -579,6 +582,15 @@
         a.href=`/releases/Claude Remote_${v}_aarch64.dmg`;
       });
     }).catch(()=>{});
+  </script>
+  <script>
+    fetch('https://chilin1-default-rtdb.europe-west1.firebasedatabase.app/stats/userCount.json')
+      .then(r=>r.json()).then(count=>{
+        if(count && count > 0){
+          document.getElementById('userCountNum').textContent = count;
+          document.getElementById('userCounter').style.opacity = '1';
+        }
+      }).catch(()=>{});
   </script>
 </body>
 </html>
