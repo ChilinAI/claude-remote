@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /chat
+Disallow: /releases/
+
+Sitemap: https://clauderemote.web.app/sitemap.xml

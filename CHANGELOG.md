@@ -2,6 +2,40 @@
 
 ## 2026-02-18
 
+### Add: SEO — robots.txt, sitemap.xml, JSON-LD structured data
+
+**Файлы:** `web/public/robots.txt`, `web/public/sitemap.xml`, `web/public/index.html`, `web/public/{de,es,fr,hi,ja,ko,pt,ru,tr,uk}/index.html`
+
+**Что сделано:**
+- `robots.txt` — разрешает индексацию, блокирует `/chat` и `/releases/`, указывает sitemap
+- `sitemap.xml` — карта сайта со всеми 12 языковыми версиями, `xhtml:link` hreflang для каждого URL
+- JSON-LD (Schema.org `SoftwareApplication`) — добавлен во все 12 index.html (EN + 11 языков). Включает: name, description, category, OS, price (free), features, languages, download URL
+
+---
+
+### Change: проверка обновлений каждые 2 минуты (v0.3.6)
+
+**Файлы:** `app/src-tauri/src/lib.rs`, `app/src-tauri/tauri.conf.json`, `web/public/releases/latest.json`
+
+**Что сделано:**
+- Интервал проверки обновлений изменён с 1 часа (3600 сек) на 2 минуты (120 сек)
+- Версия: 0.3.6
+
+---
+
+### Add: файловое логирование (v0.3.5)
+
+**Файлы:** `app/src-tauri/Cargo.toml`, `app/src-tauri/Cargo.lock`, `app/src-tauri/src/lib.rs`, `app/src-tauri/tauri.conf.json`, `web/public/releases/latest.json`
+
+**Что сделано:**
+- Добавлена функция `log_msg()` — пишет timestamped записи в `~/Library/Logs/claude-remote.log`
+- Авто-ротация лога: при превышении 5MB обрезается до последних 2MB
+- Все `println!` заменены на `log_msg()` для персистентного логирования
+- Добавлена зависимость `chrono = "0.4"` для форматирования временных меток
+- Обновлён `latest.json` для auto-update v0.3.5
+
+---
+
 ### Fix: предотвращение App Nap и обработка пробуждения (v0.3.4)
 
 **Файлы:** `app/src-tauri/Cargo.toml`, `app/src-tauri/src/lib.rs`, `app/src-tauri/tauri.conf.json`
