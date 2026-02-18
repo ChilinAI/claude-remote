@@ -1,8 +1,8 @@
 {
-  "version": "0.3.5",
+  "version": "0.3.6",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNWxGbVNwNUJGN3VETFRuOXZvKzdvV0NyVUZQVjBJWnB0bFBGaUE5Zmk0aFhrbVoya2QzMmNYVFdEKzVrOUxHOEJuVFZlanJ4L3dEenFIaE9iSFBJSXdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDMxNTcxCWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6CnVGNUovbENIOXNwV2prMDZuVy9ZMkVxdzduV3NRRE9tMFBYM3ZieXI5UllEMHZRdGNVWFdoZUM0dWg1S3BxNkx3M2c3VFJSWEo0VmUvMGxVNFVPUUNRPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRb0ZnSmMyUlRUNW9oa1E2ZjdQV1BXd1lpRnBFQ2tzbDZBQnJMOHN5RkVCUGtjbEJWeElmY1lyMzg3cUdRRVVoSzBsemE4L0xJb1k2VUFsT3l6cUN4OXNGa3B0dS8xZFFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcxNDMxODU4CWZpbGU6Q2xhdWRlIFJlbW90ZS5hcHAudGFyLmd6Clc3cC9qNVdQYTgwSDI2RFpxckhtWHFsanloeW1VVjc4KyszaU9jUUtvVGp3S3l5aUxJTjl3VDFvMlNjZkI5RVlqaGwxYUNEeWxPRmZ6cTU3S1Zxc0JnPT0K",
       "url": "https://clauderemote.web.app/releases/Claude Remote.app.tar.gz"
     }
   }

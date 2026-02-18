@@ -1037,8 +1037,8 @@ async fn background_update_loop(app: tauri::AppHandle, state: Arc<AppState>) {
             log_msg("[updater] Daemon running, skipping update check");
         }
 
-        // Check every hour
-        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+        // Check every 2 minutes
+        tokio::time::sleep(tokio::time::Duration::from_secs(120)).await;
     }
 }
 
